@@ -38,7 +38,7 @@ filter(representation, /item/)            // return multiple based on regex
 Using yarn:
 
 ```bash
-$ yarn add semanticlink-js
+$ yarn add semantic-link
 ```
 
 # Example

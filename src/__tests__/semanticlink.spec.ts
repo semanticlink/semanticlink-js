@@ -1,5 +1,4 @@
-import { filter, getTitle, getUri, matches } from '../filter';
-import { Link, LinkedRepresentation } from '../interfaces';
+import { filter, getTitle, getUri, Link, LinkedRepresentation, matches } from '../index';
 
 describe('Link Representation ', () => {
   const testRelsOnly = [

@@ -100,14 +100,14 @@ describe('Link Representation ', () => {
   });
 });
 
-describe("Errors and logging", () => {
-    test('empty linked representation', () => {
-      expect(matches({} as LinkedRepresentation, '')).toBeFalsy();
-    });
-    test('empty array links', () => {
-      expect(matches([] as Link[], '')).toBeFalsy();
-    });
-   test('empty Element', () => {
-      expect(matches({} as Element, '')).toBeFalsy();
-    });
+describe('Errors and logging', () => {
+  test('empty linked representation', () => {
+    expect(matches({} as LinkedRepresentation, '')).toBeFalsy();
+  });
+  test('empty array links', () => {
+    expect(matches([] as Link[], '')).toBeFalsy();
+  });
+  test('empty Element', () => {
+    expect(matches({} as Element, '')).toBeFalsy();
+  });
 });

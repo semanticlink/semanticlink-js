@@ -212,7 +212,7 @@ function matchParameter(linkString: string, matchString: string | RegExp): boole
  * @private
  */
 export function instanceOfLinkedRepresentation(object: any): object is LinkedRepresentation {
-  if (object == null){
+  if (object == null) {
     return false;
   }
   return 'links' in object;

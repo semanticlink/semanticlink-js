@@ -325,6 +325,9 @@ export function filter(arg: LinkType, relationshipType: RelationshipType, mediaT
   if (arg instanceof Array) {
     // filter an array of JSON link objects
     return filterLinks(arg, relationshipType, mediaType);
+  } else if (instanceOfLinkedRepresentation(arg)) {
+    // Filter based on a representation with an array on 'links'
+    return filterRepresentation(arg, relationshipType, mediaType);
   } else if (arg === 'HEAD') {
     // Filter 'link' elements from the 'head' element of the DOM, this is a
     // shortcut method so the caller doesn't have to express "$('HEAD')[0]"
@@ -334,9 +337,6 @@ export function filter(arg: LinkType, relationshipType: RelationshipType, mediaT
   } else if (arg instanceof Element) {
     // Filter 'link' elements from the DOM
     return filterDom(arg, relationshipType, mediaType);
-  } else if (instanceOfLinkedRepresentation(arg)) {
-    // Filter based on a representation with an array on 'links'
-    return filterRepresentation(arg, relationshipType, mediaType);
   }
   return [];
 }

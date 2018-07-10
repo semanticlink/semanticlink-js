@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["ES6", "ES7", "ESNext", "DOM", "DOM.Iterable"],
-    "module": "commonjs",
+    "module": "es6",
     "declaration": true,
     "outDir": "./lib",
     "strict": true

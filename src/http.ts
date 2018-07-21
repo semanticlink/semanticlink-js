@@ -95,16 +95,16 @@ export function link(
   if (item && item.href) {
     return (
       httpRequest(cancellable as CancelToken, data, verb, item, mediaType)
-      /**
-       * Currently axios is our library and it throws a {@link AxiosPromise} which includes a request, response
-       * and config. We will only return the response to work with implementation that from older http requests.
-       */
+        /**
+         * Currently axios is our library and it throws a {@link AxiosPromise} which includes a request, response
+         * and config. We will only return the response to work with implementation that from older http requests.
+         */
         .catch((err: AxiosError) => {
           throw err.response;
         })
     );
   } else {
-    return Promise.reject('The resource doesn\'t support the required interface');
+    return Promise.reject("The resource doesn't support the required interface");
   }
 }
 
@@ -155,7 +155,6 @@ export function get(
   mediaType?: MediaType | Cancellable,
   cancellable?: Cancellable,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-
   if (mediaType as Cancellable) {
     cancellable = mediaType as Cancellable;
     mediaType = undefined;
@@ -199,7 +198,15 @@ export function tryGet(
     cancellable = undefined;
   }
 
-  return tryLink(links, relationshipType, mediaType as MediaType, 'GET', {} as LinkedRepresentation, cancellable as Cancellable, defaultValue);
+  return tryLink(
+    links,
+    relationshipType,
+    mediaType as MediaType,
+    'GET',
+    {} as LinkedRepresentation,
+    cancellable as Cancellable,
+    defaultValue,
+  );
 }
 
 /**
@@ -217,7 +224,6 @@ export function put(
   mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-
   if (mediaType as AcrossTheWire) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
@@ -241,7 +247,6 @@ export function post(
   mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-
   if (mediaType as AcrossTheWire) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
@@ -266,7 +271,6 @@ export function patch(
   mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-
   if (mediaType as AcrossTheWire) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
@@ -290,9 +294,7 @@ export function _delete(
   mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-
-
-  if (mediaType as AcrossTheWire){
+  if (mediaType as AcrossTheWire) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
   }

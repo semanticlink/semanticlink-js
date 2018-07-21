@@ -21,7 +21,6 @@ describe('Get', () => {
   });
 
   describe('tryGet - param shifting', () => {
-
     const resource = {
       links: [{ rel: 'self', href: 'https://api.example.com/' }],
     };
@@ -46,7 +45,9 @@ describe('Get', () => {
     });
 
     it('all', async () => {
-      expect(await tryGet(resource, /self/, 'text/uri-list', {} as CancelToken, { links: [] } as LinkedRepresentation)).toEqual(response);
+      expect(
+        await tryGet(resource, /self/, 'text/uri-list', {} as CancelToken, { links: [] } as LinkedRepresentation),
+      ).toEqual(response);
     });
 
     it('no media or default value', async () => {
@@ -54,11 +55,11 @@ describe('Get', () => {
     });
 
     it('no media with cancel and default', async () => {
-      expect(await tryGet(resource, /self/, {} as CancelToken, { links: [] } as LinkedRepresentation)).toEqual(response);
+      expect(await tryGet(resource, /self/, {} as CancelToken, { links: [] } as LinkedRepresentation)).toEqual(
+        response,
+      );
     });
-
   });
-
 });
 
 describe('Post', () => {
@@ -104,10 +105,10 @@ describe('Delete', () => {
     };
 
     const response = {
-      'cancelToken': undefined,
-      'data': 'text/uri-list',
-      'method': 'DELETE',
-      'url': 'https://api.example.com/collection',
+      cancelToken: undefined,
+      data: 'text/uri-list',
+      method: 'DELETE',
+      url: 'https://api.example.com/collection',
     };
 
     const result = await _delete(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1');
@@ -120,10 +121,9 @@ describe('Delete', () => {
       links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
     };
 
-    await _delete(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')
-      .catch((result) => {
-        expect(result).toEqual('The resource doesn\'t support the required interface');
-      });
+    await _delete(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1').catch(result => {
+      expect(result).toEqual("The resource doesn't support the required interface");
+    });
   });
 });
 

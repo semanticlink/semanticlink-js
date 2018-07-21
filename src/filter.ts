@@ -151,9 +151,9 @@ function makeNotFoundMessage(links: LinkType, relationshipType: RelationshipType
   }
 
   return (
-    'The semantic interface \'' +
+    "The semantic interface '" +
     relationshipType +
-    '\'' +
+    "'" +
     mediaTypeDetails +
     ' is not available. ' +
     allLinks.length +
@@ -202,7 +202,6 @@ function matchParameter(linkString: string, matchString: string | RegExp): boole
     linkString === matchString ||
     // explicit media types must limit and find specified link types
     (matchString !== null && matchString !== '*/*' && matchString !== '*' && linkString === matchString)
-
   );
 }
 
@@ -251,43 +250,39 @@ export function filterLinks(links: LinkType, rels: RelationshipType, mediaType?:
   // https://schneidenbach.gitbooks.io/typescript-cookbook/functional-programming/flattening-array-of-arrays.html
   return ([] as Link[]).concat(
     ...// KLUDGE: this little upcasting is to have 'map' available
-      ((rels as RegExp[] | string[]) as any[]).map(rel => {
-
-        if (links instanceof Array) {
-          return links.filter(link => {
-
-            // start the match for 'href'
-            if (link.href) {
-              // if it has a rel then be increasingly more specific
-              if (link.rel) {
-
-                // sorry, ugly switching for typing
-                // if we presented a rel, then it must match to be true
-                if (!matchParameter(link.rel, rel instanceof RegExp ? (rel as RegExp) : (rel as string))) {
-                  return false; // relationship type doesn't match
-                }
+    ((rels as RegExp[] | string[]) as any[]).map(rel => {
+      if (links instanceof Array) {
+        return links.filter(link => {
+          // start the match for 'href'
+          if (link.href) {
+            // if it has a rel then be increasingly more specific
+            if (link.rel) {
+              // sorry, ugly switching for typing
+              // if we presented a rel, then it must match to be true
+              if (!matchParameter(link.rel, rel instanceof RegExp ? (rel as RegExp) : (rel as string))) {
+                return false; // relationship type doesn't match
               }
-
-              // if we presented a type, then it must match to be true
-              if (!matchParameter(link.type as string, mediaType as string)) {
-                return false; // media type doesn't match
-              }
-
-
-              // so, we have four potential conditions when up to three variables are presented
-              //  1. href
-              //  2. href & rel
-              //  3. href & type
-              //  4. href & rel & type
-              return true; // it seems to match, and it has an url.
             }
-            return false; // no match;
-          });
-        } else {
-          log.warn('Array input expected - filterLinks');
-          return []; // No links match the filter requirements.
-        }
-      }),
+
+            // if we presented a type, then it must match to be true
+            if (!matchParameter(link.type as string, mediaType as string)) {
+              return false; // media type doesn't match
+            }
+
+            // so, we have four potential conditions when up to three variables are presented
+            //  1. href
+            //  2. href & rel
+            //  3. href & type
+            //  4. href & rel & type
+            return true; // it seems to match, and it has an url.
+          }
+          return false; // no match;
+        });
+      } else {
+        log.warn('Array input expected - filterLinks');
+        return []; // No links match the filter requirements.
+      }
+    }),
   );
 }
 

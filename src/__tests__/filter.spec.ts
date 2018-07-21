@@ -53,6 +53,8 @@ describe('Link Representation ', () => {
         { rel: 'tags', href: 'http://example.com/tag/2', type: 'text/uri-list' },
         { rel: 'tags', href: 'http://example.com/tag/3', type: 'application/json' },
         { rel: 'tags', href: 'http://example.com/tag/4' },
+        { rel: 'edit-form', href: 'http://example.com/tag/edit/form', type: 'text/uri-list' },
+        { rel: 'edit-form', href: 'http://example.com/tag/edit/form', type: 'application/json-path+json' },
         { rel: 'self', href: 'http://example.com/1', type: 'application/json' },
       ],
     };
@@ -62,16 +64,21 @@ describe('Link Representation ', () => {
       ['empty is wildcard', 'tags', '', 4],
       ['wildcard', 'tags', '*', 4],
       ['wildcard', 'tags', '*/*', 4],
-      ['specific mediaType includes non-specified', 'tags', 'application/json', 3], // should this be the case
-      ['specific mediaType includes non-specified', 'tags', 'text/uri-list', 2], // should this be the case
+      ['specific mediaType does not include non-specified', 'tags', 'application/json', 2],
+      ['specific mediaType does not include non-specified', 'tags', 'text/uri-list', 1],
+      ['specific mediaType does not include non-specified', 'edit-form', 'text/uri-list', 1],
     ];
 
-    test.each(rels)('%s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
+    test.each(rels)('filter - %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
       expect(filter(links, rel, mediaType).length).toBe(expected),
+    );
+
+    test.each(rels)('matches %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
+      expect(matches(links, rel, mediaType)).toBe(expected > 0),
     );
   });
 
-  describe('get', () => {
+  describe('get uri and title', () => {
     const representation: LinkedRepresentation = {
       links: [
         { rel: 'self', href: 'http://example.com/1', title: 'One' },

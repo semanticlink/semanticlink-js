@@ -22,7 +22,6 @@ type Cancellable = CancelToken;
 /**
  * Optional type that allows a param shifting
  */
-type Optional<T> = T | Cancellable | undefined;
 
 /**
  * As we do requests there are loads of media types that might be sent.
@@ -50,7 +49,7 @@ function isPromiseLike(obj: any) {
  * @param {LinkedRepresentation} data
  * @param {Verb} verb
  * @param {Link} item
- * @param {Optional<MediaType>} mediaType
+ * @param {MediaType} mediaType
  * @returns {AxiosPromise}
  * @private
  */
@@ -59,7 +58,7 @@ function httpRequest(
   data: LinkedRepresentation,
   verb: Verb,
   item: Link,
-  mediaType: Optional<MediaType>,
+  mediaType: MediaType,
 ): AxiosPromise {
   return axios({
     ...{
@@ -87,25 +86,25 @@ function httpRequest(
 export function link(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: Optional<MediaType>,
+  mediaType: MediaType,
   verb: Verb,
   data: AcrossTheWire,
   cancellable?: Cancellable,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  const [item] = filter(links, relationshipType, mediaType as MediaType);
+  const [item] = filter(links, relationshipType, mediaType);
   if (item && item.href) {
     return (
       httpRequest(cancellable as CancelToken, data, verb, item, mediaType)
-        /**
-         * Currently axios is our library and it throws a {@link AxiosPromise} which includes a request, response
-         * and config. We will only return the response to work with implementation that from older http requests.
-         */
+      /**
+       * Currently axios is our library and it throws a {@link AxiosPromise} which includes a request, response
+       * and config. We will only return the response to work with implementation that from older http requests.
+       */
         .catch((err: AxiosError) => {
           throw err.response;
         })
     );
   } else {
-    return Promise.reject("The resource doesn't support the required interface");
+    return Promise.reject('The resource doesn\'t support the required interface');
   }
 }
 
@@ -123,7 +122,7 @@ export function link(
 export function tryLink(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: Optional<MediaType>,
+  mediaType: MediaType,
   verb: Verb,
   data: AcrossTheWire,
   cancellable?: Cancellable,
@@ -153,16 +152,16 @@ export function tryLink(
 export function get(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: Optional<MediaType>,
+  mediaType?: MediaType | Cancellable,
   cancellable?: Cancellable,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  // The mediaType parameter is optional - add it in as undefined
-  if (isPromiseLike(mediaType)) {
-    Array.prototype.splice.call(arguments, 2, 0, undefined);
-    return get.apply(get, arguments);
+
+  if (mediaType as Cancellable) {
+    cancellable = mediaType as Cancellable;
+    mediaType = undefined;
   }
 
-  return link(links, relationshipType, mediaType, 'GET', {} as LinkedRepresentation, cancellable);
+  return link(links, relationshipType, mediaType as MediaType, 'GET', {} as LinkedRepresentation, cancellable);
 }
 
 /**
@@ -178,17 +177,29 @@ export function get(
 export function tryGet(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: Optional<MediaType>,
-  cancellable?: Cancellable,
+  mediaType?: MediaType | Cancellable | LinkedRepresentation,
+  cancellable?: Cancellable | LinkedRepresentation,
   defaultValue?: LinkedRepresentation,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  // The mediaType parameter is optional - add it in as undefined
-  if (isPromiseLike(mediaType)) {
-    Array.prototype.splice.call(arguments, 2, 0, undefined);
-    return tryGet.apply(get, arguments);
+  // The m
+  // ediaType parameter is optional - add it in as undefined
+  if (mediaType as Cancellable) {
+    cancellable = mediaType as Cancellable;
+    mediaType = undefined;
   }
 
-  return tryLink(links, relationshipType, mediaType, 'GET', {} as LinkedRepresentation, cancellable, defaultValue);
+  if (mediaType as LinkedRepresentation) {
+    defaultValue = mediaType as LinkedRepresentation;
+    mediaType = undefined;
+    cancellable = undefined;
+  }
+
+  if (cancellable as LinkedRepresentation) {
+    defaultValue = cancellable as LinkedRepresentation;
+    cancellable = undefined;
+  }
+
+  return tryLink(links, relationshipType, mediaType as MediaType, 'GET', {} as LinkedRepresentation, cancellable as Cancellable, defaultValue);
 }
 
 /**
@@ -203,9 +214,14 @@ export function tryGet(
 export function put(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: Optional<MediaType>,
-  data: AcrossTheWire,
+  mediaType?: MediaType | AcrossTheWire,
+  data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
+
+  if (mediaType as AcrossTheWire) {
+    data = mediaType as AcrossTheWire;
+    mediaType = undefined;
+  }
   return link(links, relationshipType, mediaType, 'PUT', data);
 }
 
@@ -222,9 +238,15 @@ export function put(
 export function post(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: Optional<MediaType>,
-  data: AcrossTheWire,
+  mediaType?: MediaType | AcrossTheWire,
+  data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
+
+  if (mediaType as AcrossTheWire) {
+    data = mediaType as AcrossTheWire;
+    mediaType = undefined;
+  }
+
   return link(links, relationshipType, mediaType, 'POST', data);
 }
 
@@ -241,9 +263,15 @@ export function post(
 export function patch(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: Optional<MediaType>,
-  data: AcrossTheWire,
+  mediaType?: MediaType | AcrossTheWire,
+  data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
+
+  if (mediaType as AcrossTheWire) {
+    data = mediaType as AcrossTheWire;
+    mediaType = undefined;
+  }
+
   return link(links, relationshipType, mediaType, 'PATCH', data);
 }
 
@@ -259,8 +287,15 @@ export function patch(
 export function _delete(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: Optional<MediaType>,
+  mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
+
+
+  if (mediaType as AcrossTheWire){
+    data = mediaType as AcrossTheWire;
+    mediaType = undefined;
+  }
+
   return link(links, relationshipType, mediaType, 'DELETE', data);
 }

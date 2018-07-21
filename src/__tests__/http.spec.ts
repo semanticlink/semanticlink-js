@@ -1,5 +1,6 @@
 import { CancelToken } from 'axios';
-import { _delete, get, post } from '../index';
+import { _delete, get, post, tryGet } from '../http';
+import { LinkedRepresentation } from '../interfaces';
 
 describe('Get', () => {
   it('should match on /self/ returning a resolved promise', async () => {
@@ -14,10 +15,50 @@ describe('Get', () => {
       url: 'https://api.example.com/',
     };
 
-    const result = await get(resource, /self/, undefined);
+    const result = await get(resource, /self/);
 
     expect(result).toEqual(response);
   });
+
+  describe('tryGet - param shifting', () => {
+
+    const resource = {
+      links: [{ rel: 'self', href: 'https://api.example.com/' }],
+    };
+
+    const response = {
+      cancelToken: undefined,
+      data: {},
+      method: 'GET',
+      url: 'https://api.example.com/',
+    };
+
+    it('no optional', async () => {
+      expect(await tryGet(resource, /self/)).toEqual(response);
+    });
+
+    it('no media type or cancel token', async () => {
+      expect(await tryGet(resource, /self/, { links: [] } as LinkedRepresentation)).toEqual(response);
+    });
+
+    it('no cancel token', async () => {
+      expect(await tryGet(resource, /self/, 'text/uri-list', { links: [] } as LinkedRepresentation)).toEqual(response);
+    });
+
+    it('all', async () => {
+      expect(await tryGet(resource, /self/, 'text/uri-list', {} as CancelToken, { links: [] } as LinkedRepresentation)).toEqual(response);
+    });
+
+    it('no media or default value', async () => {
+      expect(await tryGet(resource, /self/, {} as CancelToken)).toEqual(response);
+    });
+
+    it('no media with cancel and default', async () => {
+      expect(await tryGet(resource, /self/, {} as CancelToken, { links: [] } as LinkedRepresentation)).toEqual(response);
+    });
+
+  });
+
 });
 
 describe('Post', () => {
@@ -33,7 +74,7 @@ describe('Post', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await post(resource, /submit/, undefined, { a: 'b' });
+    const result = await post(resource, /submit/, { a: 'b' });
 
     expect(result).toEqual(response);
   });
@@ -52,30 +93,42 @@ describe('Delete', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await _delete(resource, /submit/, undefined);
+    const result = await _delete(resource, /submit/);
 
     expect(result).toEqual(response);
   });
-  it('should match on /submit/ with media type', async () => {
+
+  it('should  match on /submit/ with media type', async () => {
     const resource = {
-      links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
+      links: [{ rel: 'submit', href: 'https://api.example.com/collection', type: 'text/uri-list' }],
     };
 
     const response = {
-      cancelToken: undefined,
-      data: 'http://api.example.com/item/1',
-      headers: { 'Content-Type': 'text/uri-list' },
-      method: 'DELETE',
-      url: 'https://api.example.com/collection',
+      'cancelToken': undefined,
+      'data': 'text/uri-list',
+      'method': 'DELETE',
+      'url': 'https://api.example.com/collection',
     };
+
     const result = await _delete(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1');
 
     expect(result).toEqual(response);
   });
+
+  it('should not match on /submit/ with media type', async () => {
+    const resource = {
+      links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
+    };
+
+    await _delete(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')
+      .catch((result) => {
+        expect(result).toEqual('The resource doesn\'t support the required interface');
+      });
+  });
 });
 
 describe('Cancellable', () => {
-  test('d', async () => {
+  test('should be able to move params', async () => {
     const resource = {
       links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
     };
@@ -87,7 +140,7 @@ describe('Cancellable', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await get(resource, /submit/, 'text/uri-list', {} as CancelToken);
+    const result = await get(resource, /submit/, {} as CancelToken);
 
     expect(result).toEqual(response);
   });

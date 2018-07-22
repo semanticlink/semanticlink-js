@@ -32,44 +32,60 @@ describe('Get', () => {
       links: [{ rel: 'self', href: 'https://api.example.com/' }],
     };
 
-    const response = {
-      cancelToken: undefined,
-      data: {},
-      method: 'GET',
-      url: 'https://api.example.com/',
-    };
+    describe('does request', () => {
+      const response = {
+        cancelToken: undefined,
+        data: {},
+        method: 'GET',
+        url: 'https://api.example.com/',
+      };
 
-    const responseWithCancel = {
-      cancelToken,
-      data: {},
-      method: 'GET',
-      url: 'https://api.example.com/',
-    };
+      it('match no optional', async () => {
+        expect(await tryGet(resource, /self/)).toEqual(response);
+      });
 
-    it('no optional', async () => {
-      expect(await tryGet(resource, /self/)).toEqual(response);
+      it('match with no media type or cancel token', async () => {
+        expect(await tryGet(resource, /self/, { links: [] } as LinkedRepresentation)).toEqual(response);
+      });
     });
 
-    it('no media type or cancel token', async () => {
-      expect(await tryGet(resource, /self/, { links: [] } as LinkedRepresentation)).toEqual(response);
+    describe('specific media type returns default value', () => {
+      const responseWithDefaultValue = {
+        data: { links: [] },
+        headers: [],
+        status: 200,
+      };
+
+      it('no cancel token', async () => {
+        expect(await tryGet(resource, /self/, 'text/uri-list', { links: [] } as LinkedRepresentation)).toEqual(
+          responseWithDefaultValue,
+        );
+      });
+
+      it('all', async () => {
+        expect(
+          await tryGet(resource, /self/, 'text/uri-list', cancelToken, { links: [] } as LinkedRepresentation),
+        ).toEqual(responseWithDefaultValue);
+      });
     });
 
-    it('no cancel token', async () => {
-      expect(await tryGet(resource, /self/, 'text/uri-list', { links: [] } as LinkedRepresentation)).toEqual(response);
-    });
+    describe('match returns with cancel token', () => {
+      const responseWithCancel = {
+        cancelToken,
+        data: {},
+        method: 'GET',
+        url: 'https://api.example.com/',
+      };
 
-    it('all', async () => {
-      expect(
-        await tryGet(resource, /self/, 'text/uri-list', cancelToken, { links: [] } as LinkedRepresentation),
-      ).toEqual(response);
-    });
+      it('no media or default value', async () => {
+        expect(await tryGet(resource, /self/, cancelToken)).toEqual(responseWithCancel);
+      });
 
-    it('no media or default value', async () => {
-      expect(await tryGet(resource, /self/, cancelToken)).toEqual(response);
-    });
-
-    it('no media with cancel and default', async () => {
-      expect(await tryGet(resource, /self/, cancelToken, { links: [] } as LinkedRepresentation)).toEqual(response);
+      it('no media with cancel and default', async () => {
+        expect(await tryGet(resource, /self/, cancelToken, { links: [] } as LinkedRepresentation)).toEqual(
+          responseWithCancel,
+        );
+      });
     });
   });
 });
@@ -118,7 +134,8 @@ describe('Delete', () => {
 
     const response = {
       cancelToken: undefined,
-      data: 'text/uri-list',
+      data: 'http://api.example.com/item/1',
+      headers: { 'Content-Type': 'text/uri-list' },
       method: 'DELETE',
       url: 'https://api.example.com/collection',
     };

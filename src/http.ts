@@ -35,12 +35,27 @@ type Cancellable = CancelToken;
 type AcrossTheWire = LinkedRepresentation | CollectionRepresentation | any;
 
 /**
- * A helper to determine if an object is a promise.
- * @param obj
- * @private
+ * User Defined Type Guards
  */
-function isPromiseLike(obj: any) {
-  return obj && obj instanceof Promise;
+
+/**
+ *
+ * @param arg
+ * @returns {boolean}
+ */
+function isCancellable(arg: any): arg is Cancellable {
+  return arg && arg.promise !== undefined;
+}
+
+/**
+ * This is always used in conjunction with {@link isCancellable} and thus checks it isn't one of those
+ *
+ * @alias !isCancellable
+ * @param arg
+ * @returns {boolean}
+ */
+function isAcrossTheWire(arg: any): arg is AcrossTheWire {
+  return !(arg instanceof String) && !isCancellable(arg);
 }
 
 /**
@@ -155,7 +170,7 @@ export function get(
   mediaType?: MediaType | Cancellable,
   cancellable?: Cancellable,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  if (mediaType as Cancellable) {
+  if (isCancellable(mediaType)) {
     cancellable = mediaType as Cancellable;
     mediaType = undefined;
   }
@@ -180,21 +195,19 @@ export function tryGet(
   cancellable?: Cancellable | LinkedRepresentation,
   defaultValue?: LinkedRepresentation,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  // The m
-  // ediaType parameter is optional - add it in as undefined
-  if (mediaType as Cancellable) {
+  if (isCancellable(mediaType)) {
     cancellable = mediaType as Cancellable;
     mediaType = undefined;
   }
 
-  if (mediaType as LinkedRepresentation) {
-    defaultValue = mediaType as LinkedRepresentation;
+  if (isAcrossTheWire(mediaType)) {
+    defaultValue = mediaType as AcrossTheWire;
     mediaType = undefined;
     cancellable = undefined;
   }
 
-  if (cancellable as LinkedRepresentation) {
-    defaultValue = cancellable as LinkedRepresentation;
+  if (isAcrossTheWire(cancellable)) {
+    defaultValue = cancellable as AcrossTheWire;
     cancellable = undefined;
   }
 
@@ -204,7 +217,7 @@ export function tryGet(
     mediaType as MediaType,
     'GET',
     {} as LinkedRepresentation,
-    cancellable as Cancellable,
+    cancellable,
     defaultValue,
   );
 }
@@ -224,10 +237,11 @@ export function put(
   mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  if (mediaType as AcrossTheWire) {
+  if (isAcrossTheWire(mediaType)) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
   }
+
   return link(links, relationshipType, mediaType, 'PUT', data);
 }
 
@@ -247,7 +261,7 @@ export function post(
   mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  if (mediaType as AcrossTheWire) {
+  if (isAcrossTheWire(mediaType)) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
   }
@@ -271,7 +285,7 @@ export function patch(
   mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  if (mediaType as AcrossTheWire) {
+  if (isAcrossTheWire(mediaType)) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
   }
@@ -294,7 +308,7 @@ export function _delete(
   mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  if (mediaType as AcrossTheWire) {
+  if (isAcrossTheWire(mediaType)) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
   }

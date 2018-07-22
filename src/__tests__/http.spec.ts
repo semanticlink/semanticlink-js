@@ -2,6 +2,13 @@ import { CancelToken } from 'axios';
 import { _delete, get, post, tryGet } from '../http';
 import { LinkedRepresentation } from '../interfaces';
 
+const cancelToken: CancelToken = {
+  promise: Promise.reject(),
+  throwIfRequested: () => {
+    return undefined;
+  },
+};
+
 describe('Get', () => {
   it('should match on /self/ returning a resolved promise', async () => {
     const resource = {
@@ -32,6 +39,13 @@ describe('Get', () => {
       url: 'https://api.example.com/',
     };
 
+    const responseWithCancel = {
+      cancelToken,
+      data: {},
+      method: 'GET',
+      url: 'https://api.example.com/',
+    };
+
     it('no optional', async () => {
       expect(await tryGet(resource, /self/)).toEqual(response);
     });
@@ -46,18 +60,16 @@ describe('Get', () => {
 
     it('all', async () => {
       expect(
-        await tryGet(resource, /self/, 'text/uri-list', {} as CancelToken, { links: [] } as LinkedRepresentation),
+        await tryGet(resource, /self/, 'text/uri-list', cancelToken, { links: [] } as LinkedRepresentation),
       ).toEqual(response);
     });
 
     it('no media or default value', async () => {
-      expect(await tryGet(resource, /self/, {} as CancelToken)).toEqual(response);
+      expect(await tryGet(resource, /self/, cancelToken)).toEqual(response);
     });
 
     it('no media with cancel and default', async () => {
-      expect(await tryGet(resource, /self/, {} as CancelToken, { links: [] } as LinkedRepresentation)).toEqual(
-        response,
-      );
+      expect(await tryGet(resource, /self/, cancelToken, { links: [] } as LinkedRepresentation)).toEqual(response);
     });
   });
 });
@@ -134,13 +146,13 @@ describe('Cancellable', () => {
     };
 
     const response = {
-      cancelToken: {},
+      cancelToken,
       data: {},
       method: 'GET',
       url: 'https://api.example.com/collection',
     };
 
-    const result = await get(resource, /submit/, {} as CancelToken);
+    const result = await get(resource, /submit/, cancelToken);
 
     expect(result).toEqual(response);
   });

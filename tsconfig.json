@@ -2,13 +2,24 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "es5",
-    "lib": ["ES6", "ES7", "ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES6",
+      "ES7",
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "es6",
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "./lib",
     "strict": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*"
+  ]
 }

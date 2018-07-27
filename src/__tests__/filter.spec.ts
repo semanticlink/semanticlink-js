@@ -1,3 +1,4 @@
+import each from 'jest-each';
 import { filter, getTitle, getUri, Link, LinkedRepresentation, matches } from '../index';
 
 describe('Link Representation ', () => {
@@ -37,7 +38,7 @@ describe('Link Representation ', () => {
     };
 
     [singleLink, multipleLinks].forEach(links => {
-      test.each(testRelsOnly)('%s: (%s, %s)', (desc: any, rel: any, expected: any) =>
+      each(testRelsOnly).test('%s: (%s, %s)', (desc: any, rel: any, expected: any) =>
         expect(matches(links, rel)).toBe(expected),
       );
     });
@@ -69,11 +70,11 @@ describe('Link Representation ', () => {
       ['specific mediaType does not include non-specified', 'edit-form', 'text/uri-list', 1],
     ];
 
-    test.each(rels)('filter - %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
+    each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
       expect(filter(links, rel, mediaType).length).toBe(expected),
     );
 
-    test.each(rels)('matches %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
+    each(rels).test('matches %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
       expect(matches(links, rel, mediaType)).toBe(expected > 0),
     );
   });

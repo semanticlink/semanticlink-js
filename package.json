@@ -7,6 +7,8 @@
   "scripts": {
     "clean": "rimraf ./lib",
     "test": "jest --config jestconfig.json",
+    "test-watch": "jest --config jestconfig.json --watch",
+    "test-coverage": "jest --config jestconfig.json --coverage",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
@@ -35,7 +37,9 @@
   "homepage": "https://github.com/semanticlink/semanticlink-js#readme",
   "devDependencies": {
     "@types/jest": "^22.2.3",
+    "@types/jest-each": "^0.3.2",
     "jest": "^23.0.1",
+    "jest-each": "^23.4.0",
     "prettier": "^1.13.2",
     "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",

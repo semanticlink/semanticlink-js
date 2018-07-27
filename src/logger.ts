@@ -7,6 +7,13 @@ export interface Logger {
    * @param {string} message the information to be displayed in string format
    * @param {*} supportingData any remaining objects to be displayed
    */
+  trace(message: string, ...supportingData: any[]): void;
+
+  /**
+   *
+   * @param {string} message the information to be displayed in string format
+   * @param {*} supportingData any remaining objects to be displayed
+   */
   debug(message: string, ...supportingData: any[]): void;
 
   /**
@@ -44,13 +51,13 @@ export enum LogLevel {
 }
 
 /**
- * Default level is info and above
+ * Default level is debug and above
  */
-let showLevel: LogLevel = LogLevel.Info;
+let showLevel: LogLevel = LogLevel.Debug;
 
 /**
- * Set the global log level for all logging. Default {@link LogLevel.Info} and above which might explain if can't see some
- * logging in the browser
+ * Set the global log level for all logging. Default {@link LogLevel.Debug} which is browsers is verbose. This logger
+ * also has {@link LogLevel.Trace} for even more information that logs on the console at debug verbose
  * @param {LogLevel} level
  */
 export function setLogLevel(level: LogLevel) {
@@ -72,7 +79,7 @@ class ConsoleLogger implements Logger {
     switch (val) {
       case LogLevel.Debug:
       case LogLevel.Trace:
-        return console.log;
+        return console.debug;
       case LogLevel.Info:
         return console.info;
       case LogLevel.Warn:
@@ -81,6 +88,10 @@ class ConsoleLogger implements Logger {
       case LogLevel.Fatal:
         return console.error;
     }
+  }
+
+  public trace(message: string, ...data: any[]): void {
+    ConsoleLogger.log(LogLevel.Trace, message, data);
   }
 
   public debug(message: string, ...data: any[]): void {
@@ -100,7 +111,4 @@ class ConsoleLogger implements Logger {
   }
 }
 
-let log: Logger;
-log = new ConsoleLogger();
-
-export { log };
+export const log: Logger = new ConsoleLogger();

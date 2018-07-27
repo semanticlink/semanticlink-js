@@ -1,5 +1,6 @@
 import { CancelToken } from 'axios';
-import { _delete, get, post, tryGet } from '../http';
+import { _delete, del, get, post, tryGet } from '../http';
+import * as semanticLink  from '../http';
 import { LinkedRepresentation } from '../interfaces';
 
 const cancelToken: CancelToken = {
@@ -110,6 +111,23 @@ describe('Post', () => {
 });
 
 describe('Delete', () => {
+
+  describe('alias', () => {
+
+    test('del', () => {
+      expect(typeof del).toBe(typeof Function)
+    });
+
+    test('_delete', () => {
+      expect(typeof _delete).toBe(typeof Function)
+    });
+
+    test('delete', () => {
+      expect(typeof semanticLink.delete).toBe(typeof Function)
+    });
+
+  });
+
   it('should match on /self/ returning a resolved promise', async () => {
     const resource = {
       links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
@@ -122,7 +140,7 @@ describe('Delete', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await _delete(resource, /submit/);
+    const result = await del(resource, /submit/);
 
     expect(result).toEqual(response);
   });
@@ -140,7 +158,7 @@ describe('Delete', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await _delete(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1');
+    const result = await del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1');
 
     expect(result).toEqual(response);
   });
@@ -150,9 +168,10 @@ describe('Delete', () => {
       links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
     };
 
-    await _delete(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1').catch(result => {
-      expect(result).toEqual("The resource doesn't support the required interface");
-    });
+    await del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')
+      .catch(result => {
+        expect(result).toEqual('The resource doesn\'t support the required interface');
+      });
   });
 });
 

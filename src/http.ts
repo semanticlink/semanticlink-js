@@ -17,7 +17,7 @@ type Verb = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 /**
  * Wrapper type around the axios {@link CancelToken}
  */
-type Cancellable = CancelToken;
+export type Cancellable = CancelToken;
 
 /**
  * Optional type that allows a param shifting
@@ -32,7 +32,7 @@ type Cancellable = CancelToken;
  * - form encoded
  * - text/url-list
  */
-type AcrossTheWire = LinkedRepresentation | CollectionRepresentation | any;
+export type AcrossTheWire = LinkedRepresentation | CollectionRepresentation | any;
 
 /**
  * User Defined Type Guards
@@ -56,6 +56,17 @@ function isCancellable(arg: any): arg is Cancellable {
  */
 function isLinkedRepresentation(arg: any): arg is LinkedRepresentation {
   return arg && arg.links !== undefined;
+}
+
+/**
+ * This is always used in conjunction with {@link isCancellable} and thus checks it isn't one of those
+ *
+ * @alias !isCancellable
+ * @param arg
+ * @returns {boolean}
+ */
+function isMediaType(arg: any): arg is MediaType {
+  return arg && typeof arg === 'string';
 }
 
 /**
@@ -110,16 +121,16 @@ export function link(
   if (item && item.href) {
     return (
       httpRequest(cancellable as CancelToken, data, verb, item, mediaType)
-        /**
-         * Currently axios is our library and it throws a {@link AxiosPromise} which includes a request, response
-         * and config. We will only return the response to work with implementation that from older http requests.
-         */
+      /**
+       * Currently axios is our library and it throws a {@link AxiosPromise} which includes a request, response
+       * and config. We will only return the response to work with implementation that from older http requests.
+       */
         .catch((err: AxiosError) => {
           throw err.response;
         })
     );
   } else {
-    return Promise.reject("The resource doesn't support the required interface");
+    return Promise.reject('The resource doesn\'t support the required interface');
   }
 }
 
@@ -297,21 +308,40 @@ export function patch(
 /**
  * DELETE http request
  *
+ * @alias delete
+ * @alias _delete
  * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
  * @param relationshipType the descriptive attribute attached to define the type of link/relationship
  * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
  * @param data the across-the-wire representation
  * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
  */
-export function _delete(
+export function del(
   links: LinkType,
   relationshipType: RelationshipType,
-  mediaType: MediaType | AcrossTheWire,
+  mediaType?: MediaType | AcrossTheWire,
   data?: AcrossTheWire,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-  if (data === undefined) {
+  if (!isMediaType(mediaType)) {
     data = mediaType as AcrossTheWire;
     mediaType = undefined;
   }
   return link(links, relationshipType, mediaType, 'DELETE', data);
 }
+
+/**
+ * Alias to get around reserved works on function. Can used with import
+ *
+ * @example
+ *
+ * import * as semanticLink from 'semantic-link'
+ *
+ * semanticLink.delete(resource, rel);
+ */
+export { del as delete };
+
+/**
+ * @alias del
+ * @deprecated use del
+ */
+export { del as _delete };

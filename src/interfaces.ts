@@ -1,12 +1,25 @@
 /**
  * A link representation
  *
- * These names are based on the Atom Publishing Protol and Syndication (micro)Format
+ * These names are based on the Atom Publishing Protocol and Syndication (micro)Format
  *
  * @see https://tools.ietf.org/html/rfc5023
  * @see https://tools.ietf.org/html/rfc4287
+ *
+ * @example
+ *
+ * In JSON:
+ *
+ *       {
+ *           links: [
+ *             { rel: "self", href:"https://api.example.com/todo/1"}
+ *             { rel: "tags", href:"https://api.example.com/todo/1/tags" },
+ *             { rel: "edit-form", href:"https://api.example.com/todo/edit/form", type:"application/json-patch+json" },
+ *           ],
+ *           ...
+ *       }
  */
-export declare interface Link {
+export interface Link {
   /**
    * A well known (or custom) relationship types e.g `collection`, `first`, `self`, `item`
    */
@@ -26,7 +39,37 @@ export declare interface Link {
 }
 
 /**
- * A representation of a resource with links.
+ * A representation of a resource with links. Domain specific representations should implement this class
+ * @example
+ *
+ * Typescript
+ *
+ *       interface TodoRepresentation implements LinkedRepresentation {
+ *            name: string;
+ *            completed: boolean;
+ *        }
+ *
+ * @example
+ *
+ * jsdoc class doc
+ *
+ *      /**
+ *      * @class TodoRepresentation
+ *      * @extends LinkedRepresentation@property {string} name
+ *      * @property {string} name
+ *      * @property {boolean} completed
+ *      * /
+ * @example
+ *
+ * JSON/javascript
+ *
+ *       {
+ *           links: [
+ *             { rel: "self", href:"https://api.example.com/todo/1"}
+ *           ],
+ *           name: "First Resource",
+ *           completed: true
+ *       }
  */
 export interface LinkedRepresentation {
   links: Link[];
@@ -54,14 +97,14 @@ export interface CollectionRepresentation extends LinkedRepresentation {
    *
    * @example
    *
-   * In Json:
+   * In JSON:
    *
    * {
    *  links: ...
    *  items: [
    *    {
-   *      id: "http://example.com/resource/1",  <-- machine-readable id
-   *      title: "First Resource"               <-- human-readable identifier
+   *      id: "http://example.com/todo/1",  <-- machine-readable id
+   *      title: "First Resource"           <-- human-readable identifier
    *  ]
    * }
    */
@@ -70,7 +113,11 @@ export interface CollectionRepresentation extends LinkedRepresentation {
 
 /**
  * A representation of a feed resource (i.e. a collection of resources). The links
- * may contain links to 'next', 'previous', 'first' and 'last'.
+ * may contain links to 'next', 'previous', 'first' and 'last' This representation is
+ * for across-the-wire {@link CollectionRepresentation} that are sparsely populated as {@link FeedItemRepresentation}
+ * (ie they have `id` and `title`. At the point of becoming in-memory the {@link FeedItemRepresentation} becomes then a
+ * sparsely populated {@link LinkedRepresentation} with the link rel (self) equal to the `id` and title as an attribute.
+ * This implementation is not part of the semantic link utility library.
  */
 export interface FeedRepresentation extends LinkedRepresentation {
   /**

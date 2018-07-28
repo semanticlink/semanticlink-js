@@ -119,6 +119,7 @@ const response = await get(resource, 'self');
 
 ```
 
+### Cancellable (CancelToken)
 
 There is also a specific param for a `Cancellable`.
 
@@ -134,10 +135,10 @@ source.cancel('Operation canceled by the user.');
 ```
 
 Note: access to axios is through the `link` interface (all the other methods call this) and the AxiosRequestConfig can
-overidden on the options. Also note, it is likely that you'd be better to use the axios interceptors. There are a couple
+overridden on the options. Also note, it is likely that you'd be better to use the axios interceptors. There are a couple
 of scenarios:
 
-1. `401` anauthorised should be implemented through interceptors, as well as setting of www-authenticate headers
+1. `401` unauthorised should be implemented through interceptors, as well as setting of www-authenticate headers
 2. Semantic link uses an atom-like across-the-wire microformat (aka media type) and the same for in-memory
 It is recommended that to use this in-memory structure and translate between other microformats
 (eg HAL, SIREN, Collection+JSON)). This can be done through many ways (1) on the outside of the request/response (2)

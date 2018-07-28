@@ -11,9 +11,7 @@ const cancelToken: CancelToken = {
 };
 
 describe('Get', () => {
-
   describe('should match on /self/ returning a resolved promise', () => {
-
     const resource = {
       links: [{ rel: 'self', href: 'https://api.example.com/' }],
     };
@@ -42,7 +40,6 @@ describe('Get', () => {
      * Avoid use this style which relies on use of 'return' rather than 'async'
      */
     describe('promise not async', () => {
-
       it('promise syntax with resovles', () => {
         expect.assertions(1);
         return expect(get(resource, /self/)).resolves.toEqual(response);
@@ -50,16 +47,13 @@ describe('Get', () => {
 
       it('promise syntax', () => {
         expect.assertions(1);
-        return get(resource, /self/)
-          .then(result => {
-            expect(result).toEqual(response);
-          });
+        return get(resource, /self/).then(result => {
+          expect(result).toEqual(response);
+        });
       });
-
     });
 
     describe('await syntax', () => {
-
       /**
        * These all do the same but ensure that the syntax is working
        */
@@ -70,7 +64,6 @@ describe('Get', () => {
         expect(result).toEqual(response);
       });
 
-
       it('with resolves', async () => {
         expect.assertions(1);
         await expect(get(resource, /self/)).resolves.toEqual(response);
@@ -78,10 +71,9 @@ describe('Get', () => {
 
       it('with promise chain', async () => {
         expect.assertions(1);
-        await get(resource, /self/)
-          .then(res => {
-            expect(res).toEqual(response);
-          });
+        await get(resource, /self/).then(res => {
+          expect(res).toEqual(response);
+        });
       });
 
       it('with promise chain catch', async () => {
@@ -97,9 +89,9 @@ describe('Get', () => {
 
       it('with promise chain catch resolves to Error (do not use this style)', async () => {
         expect.assertions(1);
-        await expect(get(resource, /self/)
-          .then(() => Promise.reject(new Error('dead'))))
-          .rejects.toEqual(new Error('dead'));
+        await expect(get(resource, /self/).then(() => Promise.reject(new Error('dead')))).rejects.toEqual(
+          new Error('dead'),
+        );
       });
 
       it('with promise chain catch correctly has an Error returned on catch to read message', async () => {
@@ -111,9 +103,7 @@ describe('Get', () => {
           });
       });
     });
-
   });
-
 
   describe('tryGet - param shifting', () => {
     const resource = {
@@ -196,9 +186,7 @@ describe('Post', () => {
 });
 
 describe('Delete', () => {
-
   describe('alias', () => {
-
     test('del', () => {
       expect(typeof del).toBe(typeof Function);
     });
@@ -210,7 +198,6 @@ describe('Delete', () => {
     test('delete', () => {
       expect(typeof semanticLink.delete).toBe(typeof Function);
     });
-
   });
 
   it('should match on /self/ returning a resolved promise', async () => {
@@ -241,8 +228,7 @@ describe('Delete', () => {
       url: 'https://api.example.com/collection',
     };
 
-    await expect(del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1'))
-      .resolves.toEqual(response);
+    await expect(del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')).resolves.toEqual(response);
   });
 
   it('should not match on /submit/ with media type', async () => {
@@ -250,13 +236,13 @@ describe('Delete', () => {
       links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
     };
 
-    await del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')
-      .catch(result => {
-        expect(result.message).toEqual('The resource doesn\'t support the required interface');
-      });
+    await del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1').catch(result => {
+      expect(result.message).toEqual("The resource doesn't support the required interface");
+    });
 
-    await expect(del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1'))
-      .rejects.toEqual(new Error('The resource doesn\'t support the required interface'));
+    await expect(del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')).rejects.toEqual(
+      new Error("The resource doesn't support the required interface"),
+    );
   });
 });
 

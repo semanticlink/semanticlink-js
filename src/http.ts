@@ -86,7 +86,7 @@ function httpRequest(
   verb: Verb,
   item: Link,
   mediaType: MediaType,
-  options?: AxiosRequestConfig
+  options?: AxiosRequestConfig,
 ): AxiosPromise {
   return axios({
     ...{
@@ -96,7 +96,7 @@ function httpRequest(
       url: item.href,
     },
     ...(data && mediaType ? { headers: { 'Content-Type': mediaType } } : {}),
-    ...options
+    ...options,
   });
 }
 
@@ -120,13 +120,13 @@ export function link(
   verb: Verb,
   data: AcrossTheWire,
   cancellable?: Cancellable,
-  options?: AxiosRequestConfig
+  options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
   const [item] = filter(links, relationshipType, mediaType);
   if (item && item.href) {
     return httpRequest(cancellable as CancelToken, data, verb, item, mediaType, options);
   } else {
-    return Promise.reject(new Error('The resource doesn\'t support the required interface'));
+    return Promise.reject(new Error("The resource doesn't support the required interface"));
   }
 }
 
@@ -150,7 +150,7 @@ export function tryLink(
   data: AcrossTheWire,
   cancellable?: Cancellable,
   defaultValue?: LinkedRepresentation,
-  options?: AxiosRequestConfig
+  options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
   const [item] = filter(links, relationshipType, mediaType as MediaType);
   if (item && item.href) {

@@ -1,6 +1,6 @@
 import { CancelToken } from 'axios';
 import { _delete, del, get, post, tryGet } from '../http';
-import * as semanticLink  from '../http';
+import * as semanticLink from '../http';
 import { LinkedRepresentation } from '../interfaces';
 
 const cancelToken: CancelToken = {
@@ -11,11 +11,16 @@ const cancelToken: CancelToken = {
 };
 
 describe('Get', () => {
-  it('should match on /self/ returning a resolved promise', async () => {
+
+  describe('should match on /self/ returning a resolved promise', () => {
+
     const resource = {
       links: [{ rel: 'self', href: 'https://api.example.com/' }],
     };
 
+    /**
+     * Note the mock on axios just returns the response data
+     */
     const response = {
       cancelToken: undefined,
       data: {},
@@ -23,10 +28,92 @@ describe('Get', () => {
       url: 'https://api.example.com/',
     };
 
-    const result = await get(resource, /self/);
+    /**
+     * We are going to use the inline (resolves) style of testing throughout with expect assertions. The rejects
+     * style however doesn't work as expected.
+     */
 
-    expect(result).toEqual(response);
+    it('promise syntax with resovles', async () => {
+      expect.assertions(1);
+      await expect(get(resource, /self/)).resolves.toEqual(response);
+    });
+
+    /**
+     * Avoid use this style which relies on use of 'return' rather than 'async'
+     */
+    describe('promise not async', () => {
+
+      it('promise syntax with resovles', () => {
+        expect.assertions(1);
+        return expect(get(resource, /self/)).resolves.toEqual(response);
+      });
+
+      it('promise syntax', () => {
+        expect.assertions(1);
+        return get(resource, /self/)
+          .then(result => {
+            expect(result).toEqual(response);
+          });
+      });
+
+    });
+
+    describe('await syntax', () => {
+
+      /**
+       * These all do the same but ensure that the syntax is working
+       */
+
+      it('inline', async () => {
+        expect.assertions(1);
+        const result = await get(resource, /self/);
+        expect(result).toEqual(response);
+      });
+
+
+      it('with resolves', async () => {
+        expect.assertions(1);
+        await expect(get(resource, /self/)).resolves.toEqual(response);
+      });
+
+      it('with promise chain', async () => {
+        expect.assertions(1);
+        await get(resource, /self/)
+          .then(res => {
+            expect(res).toEqual(response);
+          });
+      });
+
+      it('with promise chain catch', async () => {
+        expect.assertions(1);
+        await get(resource, /self/)
+          .then(() => {
+            throw new Error('dead');
+          })
+          .catch(err => {
+            expect(err.message).toEqual('dead');
+          });
+      });
+
+      it('with promise chain catch resolves to Error (do not use this style)', async () => {
+        expect.assertions(1);
+        await expect(get(resource, /self/)
+          .then(() => Promise.reject(new Error('dead'))))
+          .rejects.toEqual(new Error('dead'));
+      });
+
+      it('with promise chain catch correctly has an Error returned on catch to read message', async () => {
+        expect.assertions(1);
+        await get(resource, /self/)
+          .then(() => Promise.reject(new Error('dead')))
+          .catch(err => {
+            expect(err.message).toEqual('dead');
+          });
+      });
+    });
+
   });
+
 
   describe('tryGet - param shifting', () => {
     const resource = {
@@ -104,9 +191,7 @@ describe('Post', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await post(resource, /submit/, { a: 'b' });
-
-    expect(result).toEqual(response);
+    await expect(post(resource, /submit/, { a: 'b' })).resolves.toEqual(response);
   });
 });
 
@@ -115,15 +200,15 @@ describe('Delete', () => {
   describe('alias', () => {
 
     test('del', () => {
-      expect(typeof del).toBe(typeof Function)
+      expect(typeof del).toBe(typeof Function);
     });
 
     test('_delete', () => {
-      expect(typeof _delete).toBe(typeof Function)
+      expect(typeof _delete).toBe(typeof Function);
     });
 
     test('delete', () => {
-      expect(typeof semanticLink.delete).toBe(typeof Function)
+      expect(typeof semanticLink.delete).toBe(typeof Function);
     });
 
   });
@@ -140,9 +225,7 @@ describe('Delete', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await del(resource, /submit/);
-
-    expect(result).toEqual(response);
+    await expect(del(resource, /submit/)).resolves.toEqual(response);
   });
 
   it('should  match on /submit/ with media type', async () => {
@@ -158,9 +241,8 @@ describe('Delete', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1');
-
-    expect(result).toEqual(response);
+    await expect(del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1'))
+      .resolves.toEqual(response);
   });
 
   it('should not match on /submit/ with media type', async () => {
@@ -170,8 +252,11 @@ describe('Delete', () => {
 
     await del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')
       .catch(result => {
-        expect(result).toEqual('The resource doesn\'t support the required interface');
+        expect(result.message).toEqual('The resource doesn\'t support the required interface');
       });
+
+    await expect(del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1'))
+      .rejects.toEqual(new Error('The resource doesn\'t support the required interface'));
   });
 });
 
@@ -188,8 +273,6 @@ describe('Cancellable', () => {
       url: 'https://api.example.com/collection',
     };
 
-    const result = await get(resource, /submit/, cancelToken);
-
-    expect(result).toEqual(response);
+    await expect(get(resource, /submit/, cancelToken)).resolves.toEqual(response);
   });
 });

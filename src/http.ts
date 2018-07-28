@@ -119,18 +119,9 @@ export function link(
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
   const [item] = filter(links, relationshipType, mediaType);
   if (item && item.href) {
-    return (
-      httpRequest(cancellable as CancelToken, data, verb, item, mediaType)
-      /**
-       * Currently axios is our library and it throws a {@link AxiosPromise} which includes a request, response
-       * and config. We will only return the response to work with implementation that from older http requests.
-       */
-        .catch((err: AxiosError) => {
-          throw err.response;
-        })
-    );
+    return httpRequest(cancellable as CancelToken, data, verb, item, mediaType);
   } else {
-    return Promise.reject('The resource doesn\'t support the required interface');
+    return Promise.reject(new Error('The resource doesn\'t support the required interface'));
   }
 }
 

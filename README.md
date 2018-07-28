@@ -142,7 +142,8 @@ of scenarios:
 It is recommended that to use this in-memory structure and translate between other microformats
 (eg HAL, SIREN, Collection+JSON)). This can be done through many ways (1) on the outside of the request/response (2)
 through interceptors and (3) on the AxiosRequestConfig. Any of these should work with the library.
-
+3. Throttling should be done outside of both of these mechanisms. It has been implemented with this utility using
+Bottleneck.
 
 ## License
 

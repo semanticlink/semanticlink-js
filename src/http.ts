@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosPromise, AxiosResponse, CancelToken } from 'axios';
+import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
 import {
   CollectionRepresentation,
   filter,
@@ -76,6 +76,7 @@ function isMediaType(arg: any): arg is MediaType {
  * @param {Verb} verb
  * @param {Link} item
  * @param {MediaType} mediaType
+ * @param options axios request config for overrides
  * @returns {AxiosPromise}
  * @private
  */
@@ -85,6 +86,7 @@ function httpRequest(
   verb: Verb,
   item: Link,
   mediaType: MediaType,
+  options?: AxiosRequestConfig
 ): AxiosPromise {
   return axios({
     ...{
@@ -94,6 +96,7 @@ function httpRequest(
       url: item.href,
     },
     ...(data && mediaType ? { headers: { 'Content-Type': mediaType } } : {}),
+    ...options
   });
 }
 
@@ -106,6 +109,7 @@ function httpRequest(
  * @param verb action to take use across http {@link Verb}
  * @param data the across-the-wire representation
  * @param cancellable a cancellable token to clear requests in the queue
+ * @param options axios request config for overrides
  * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
  * @private
  */
@@ -116,10 +120,11 @@ export function link(
   verb: Verb,
   data: AcrossTheWire,
   cancellable?: Cancellable,
+  options?: AxiosRequestConfig
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
   const [item] = filter(links, relationshipType, mediaType);
   if (item && item.href) {
-    return httpRequest(cancellable as CancelToken, data, verb, item, mediaType);
+    return httpRequest(cancellable as CancelToken, data, verb, item, mediaType, options);
   } else {
     return Promise.reject(new Error('The resource doesn\'t support the required interface'));
   }
@@ -133,6 +138,7 @@ export function link(
  * @param data the across-the-wire representation
  * @param cancellable a cancellable token to clear requests in the queue
  * @param defaultValue be able to return a {@link LinkedRepresentation} in the case of failure
+ * @param options axios request config for overrides
  * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
  * @private
  */
@@ -144,10 +150,11 @@ export function tryLink(
   data: AcrossTheWire,
   cancellable?: Cancellable,
   defaultValue?: LinkedRepresentation,
+  options?: AxiosRequestConfig
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
   const [item] = filter(links, relationshipType, mediaType as MediaType);
   if (item && item.href) {
-    return httpRequest(cancellable as CancelToken, data, verb, item, mediaType);
+    return httpRequest(cancellable as CancelToken, data, verb, item, mediaType, options);
   } else {
     return Promise.resolve({
       data: defaultValue as LinkedRepresentation,

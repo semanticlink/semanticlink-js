@@ -179,7 +179,7 @@ function logError(links: LinkType, relationshipType: RelationshipType, mediaType
   if (links == null) {
     log.error('Null or invalid object provided with semantic links information');
   } else {
-    log.error(makeNotFoundMessage(links, relationshipType, mediaType));
+    log.debug(makeNotFoundMessage(links, relationshipType, mediaType));
   }
 }
 

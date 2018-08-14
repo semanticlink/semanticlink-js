@@ -104,8 +104,8 @@ describe('Link Representation ', () => {
     test('empty href does not throw Error', () => {
       expect(getUri(representation, 'empty')).toBe(undefined);
     });
-     test('empty href returns default', () => {
-      expect(getUri(representation, 'empty', undefined,'a')).toBe('a');
+    test('empty href returns default', () => {
+      expect(getUri(representation, 'empty', undefined, 'a')).toBe('a');
     });
   });
 });

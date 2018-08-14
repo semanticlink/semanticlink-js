@@ -87,7 +87,7 @@ export interface FeedItemRepresentation {
 }
 
 /**
- * A representation of a collection of resources. The links
+ * A representation of a collection of resources. The links~
  * may contain links to 'next', 'previous', 'first' and 'last'.
  */
 export interface CollectionRepresentation extends LinkedRepresentation {

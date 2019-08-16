@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
 import {
   CollectionRepresentation,
   filter,
@@ -33,6 +33,25 @@ export type Cancellable = CancelToken;
  * - text/url-list
  */
 export type AcrossTheWire = LinkedRepresentation | CollectionRepresentation | any;
+
+/**
+ * The instance of {@link Axios} to use, which defaults to the global instance.
+ */
+let anAxios:AxiosInstance = axios as AxiosInstance;
+
+/**
+ * Provide a away for an application to specify the instance of {@link Axios} to use.
+ *
+ * Historically this library has used the global Axios instance. This means that any
+ * defaults or interceptors configured must be on the same global instance. This is
+ * quite manageable until the application code uses a different version of the library
+ * and thus a different instance; which in turn will fail to use the configured defaults
+ * and interceptors.
+ */
+export function useAxios(a :AxiosInstance) :void
+{
+  anAxios = a;
+}
 
 /**
  * User Defined Type Guards
@@ -88,7 +107,7 @@ function httpRequest(
   mediaType: MediaType,
   options?: AxiosRequestConfig,
 ): AxiosPromise {
-  return axios({
+  return anAxios({
     ...{
       cancelToken: cancellable,
       data,

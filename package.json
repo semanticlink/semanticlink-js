@@ -36,6 +36,7 @@
   },
   "homepage": "https://github.com/semanticlink/semanticlink-js#readme",
   "devDependencies": {
+    "@babel/preset-typescript": "^7.6.0",
     "@types/jest": "^22.2.3",
     "@types/jest-each": "^0.3.2",
     "jest": "^23.0.1",

@@ -38,8 +38,9 @@ describe('Link Representation ', () => {
     };
 
     [singleLink, multipleLinks].forEach(links => {
-      each(testRelsOnly).test('%s: (%s, %s)', (desc: any, rel: any, expected: any) =>
-        expect(matches(links, rel)).toBe(expected),
+      each(testRelsOnly).test('%s: (%s, %s)', (desc: any, rel: any, expected: any) => {
+           expect(matches(links, rel)).toBe(expected);
+        },
       );
     });
   });
@@ -70,12 +71,14 @@ describe('Link Representation ', () => {
       ['specific mediaType does not include non-specified', 'edit-form', 'text/uri-list', 1],
     ];
 
-    each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
-      expect(filter(links, rel, mediaType).length).toBe(expected),
+    each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) => {
+         expect(filter(links, rel, mediaType).length).toBe(expected);
+      },
     );
 
-    each(rels).test('matches %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) =>
-      expect(matches(links, rel, mediaType)).toBe(expected > 0),
+    each(rels).test('matches %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) => {
+         expect(matches(links, rel, mediaType)).toBe(expected > 0);
+      },
     );
   });
 

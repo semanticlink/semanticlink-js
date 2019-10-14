@@ -3,11 +3,11 @@
     "baseUrl": ".",
     "target": "es5",
     "lib": [
-      "ES6",
-      "ES7",
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
+      "es6",
+      "es7",
+      "esnext",
+      "dom",
+      "dom.iterable"
     ],
     "module": "es6",
     "moduleResolution": "node",

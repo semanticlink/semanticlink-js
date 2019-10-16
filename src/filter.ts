@@ -99,27 +99,27 @@ export type Uri = string;
  * @private
  */
 function filterDom(element: Document | Element, relationshipType: RelationshipType, mediaType: MediaType): Link[] {
-  const selector = `link[rel="${relationshipType}"]`;
-  const elements = element.querySelectorAll(selector);
+    const selector = `link[rel="${relationshipType}"]`;
+    const elements = element.querySelectorAll(selector);
 
-  if (elements === null) {
-    log.warn('No links for the api found in document/element');
-    return [];
-  }
+    if (elements === null) {
+        log.warn('No links for the api found in document/element');
+        return [];
+    }
 
-  // Trouble iterating a NodeListOf<Element>
-  // so have fallen back to old school for instead of map
-  const links: Link[] = [];
+    // Trouble iterating a NodeListOf<Element>
+    // so have fallen back to old school for instead of map
+    const links: Link[] = [];
 
-  for (const el of elements as any) {
-    links.push({
-      href: el.href,
-      rel: el.rel,
-      type: el.type,
-    });
-  }
+    for (const el of elements as any) {
+        links.push({
+            href: el.href,
+            rel: el.rel,
+            type: el.type,
+        });
+    }
 
-  return filterLinks(links, relationshipType, mediaType);
+    return filterLinks(links, relationshipType, mediaType);
 }
 
 /**
@@ -129,14 +129,13 @@ function filterDom(element: Document | Element, relationshipType: RelationshipTy
  * @private
  */
 function filterRepresentation(
-  representation: LinkedRepresentation,
-  relationshipType: RelationshipType,
-  mediaType: MediaType,
-): Link[] {
-  if (representation.links) {
-    return filterLinks(representation.links, relationshipType, mediaType);
-  }
-  return []; // No links member on the object, so nothing matches
+        representation: LinkedRepresentation,
+        relationshipType: RelationshipType,
+        mediaType: MediaType): Link[] {
+    if (representation.links) {
+        return filterLinks(representation.links, relationshipType, mediaType);
+    }
+    return []; // No links member on the object, so nothing matches
 }
 
 /**
@@ -144,43 +143,43 @@ function filterRepresentation(
  * @private
  */
 function makeNotFoundMessage(links: LinkType, relationshipType: RelationshipType, mediaType?: MediaType): string {
-  const allLinks = filter(links, '*', '*');
-  let mediaTypeDetails = ' (' + mediaType + ')';
-  if (!mediaType) {
-    mediaTypeDetails = '';
-  }
+    const allLinks = filter(links, '*', '*');
+    let mediaTypeDetails = ' (' + mediaType + ')';
+    if (!mediaType) {
+        mediaTypeDetails = '';
+    }
 
-  return (
-    "The semantic interface '" +
-    relationshipType +
-    "'" +
-    mediaTypeDetails +
-    ' is not available. ' +
-    allLinks.length +
-    ' available links include ' +
-    allLinks
-      .map(link => {
-        if (link.type && link.type !== '*' && link.type !== '*/*') {
-          return '"' + link.rel + '" (' + link.type + ')';
-        } else if (link.rel && link.rel.match(/self|canonical/)) {
-          return '"self: ' + link.href + '"';
-        } else {
-          return '"' + link.rel + '"';
-        }
-      })
-      .join(', ')
-  );
+    return (
+            'The semantic interface \'' +
+            relationshipType +
+            '\'' +
+            mediaTypeDetails +
+            ' is not available. ' +
+            allLinks.length +
+            ' available links include ' +
+            allLinks
+                    .map(link => {
+                        if (link.type && link.type !== '*' && link.type !== '*/*') {
+                            return '"' + link.rel + '" (' + link.type + ')';
+                        } else if (link.rel && link.rel.match(/self|canonical/)) {
+                            return '"self: ' + link.href + '"';
+                        } else {
+                            return '"' + link.rel + '"';
+                        }
+                    })
+                    .join(', ')
+    );
 }
 
 /**
  * @private
  */
 function logError(links: LinkType, relationshipType: RelationshipType, mediaType?: MediaType) {
-  if (links == null) {
-    log.error('Null or invalid object provided with semantic links information');
-  } else {
-    log.debug(makeNotFoundMessage(links, relationshipType, mediaType));
-  }
+    if (links == null) {
+        log.error('Null or invalid object provided with semantic links information');
+    } else {
+        log.debug(makeNotFoundMessage(links, relationshipType, mediaType));
+    }
 }
 
 /**
@@ -194,15 +193,15 @@ function logError(links: LinkType, relationshipType: RelationshipType, mediaType
  * @private
  */
 function matchParameter(linkString: string, matchString: string | RegExp): boolean {
-  return (
-    (linkString && matchString instanceof RegExp && !!linkString.match(matchString)) ||
-    matchString === '*' ||
-    matchString === '*/*' ||
-    linkString === '*/*' ||
-    linkString === matchString ||
-    // explicit media types must limit and find specified link types
-    (matchString !== null && matchString !== '*/*' && matchString !== '*' && linkString === matchString)
-  );
+    return (
+            (linkString && matchString instanceof RegExp && !!linkString.match(matchString)) ||
+            matchString === '*' ||
+            matchString === '*/*' ||
+            linkString === '*/*' ||
+            linkString === matchString ||
+            // explicit media types must limit and find specified link types
+            (matchString !== null && matchString !== '*/*' && matchString !== '*' && linkString === matchString)
+    );
 }
 
 /**
@@ -214,10 +213,10 @@ function matchParameter(linkString: string, matchString: string | RegExp): boole
  * @private
  */
 export function instanceOfLinkedRepresentation(object: any): object is LinkedRepresentation {
-  if (object == null || typeof object === 'string') {
-    return false;
-  }
-  return 'links' in object;
+    if (object == null || typeof object === 'string') {
+        return false;
+    }
+    return 'links' in object;
 }
 
 //  Public interface methods
@@ -237,53 +236,53 @@ export function instanceOfLinkedRepresentation(object: any): object is LinkedRep
  * @private
  */
 export function filterLinks(links: LinkType, rels: RelationshipType, mediaType?: MediaType): Link[] {
-  // KLUDGE: must be a better way to to cast string|Regexp into explicit arrays
-  if (typeof rels === 'string') {
-    rels = [rels];
-  }
+    // KLUDGE: must be a better way to to cast string|Regexp into explicit arrays
+    if (typeof rels === 'string') {
+        rels = [rels];
+    }
 
-  if (rels instanceof RegExp) {
-    rels = [rels];
-  }
+    if (rels instanceof RegExp) {
+        rels = [rels];
+    }
 
-  // magic bit of array flattening through casting (the map returns an array of array (single deep)
-  // https://schneidenbach.gitbooks.io/typescript-cookbook/functional-programming/flattening-array-of-arrays.html
-  return ([] as Link[]).concat(
-    ...// KLUDGE: this little upcasting is to have 'map' available
-    ((rels as RegExp[] | string[]) as any[]).map(rel => {
-      if (links instanceof Array) {
-        return links.filter(link => {
-          // start the match for 'href'
-          if (link.href) {
-            // if it has a rel then be increasingly more specific
-            if (link.rel) {
-              // sorry, ugly switching for typing
-              // if we presented a rel, then it must match to be true
-              if (!matchParameter(link.rel, rel instanceof RegExp ? (rel as RegExp) : (rel as string))) {
-                return false; // relationship type doesn't match
-              }
-            }
+    // magic bit of array flattening through casting (the map returns an array of array (single deep)
+    // https://schneidenbach.gitbooks.io/typescript-cookbook/functional-programming/flattening-array-of-arrays.html
+    return ([] as Link[]).concat(
+            ...// KLUDGE: this little upcasting is to have 'map' available
+                    ((rels as RegExp[] | string[]) as any[]).map(rel => {
+                        if (links instanceof Array) {
+                            return links.filter(link => {
+                                // start the match for 'href'
+                                if (link.href) {
+                                    // if it has a rel then be increasingly more specific
+                                    if (link.rel) {
+                                        // sorry, ugly switching for typing
+                                        // if we presented a rel, then it must match to be true
+                                        if (!matchParameter(link.rel, rel instanceof RegExp ? (rel as RegExp) : (rel as string))) {
+                                            return false; // relationship type doesn't match
+                                        }
+                                    }
 
-            // if we presented a type, then it must match to be true
-            if (!matchParameter(link.type as string, mediaType as string)) {
-              return false; // media type doesn't match
-            }
+                                    // if we presented a type, then it must match to be true
+                                    if (!matchParameter(link.type as string, mediaType as string)) {
+                                        return false; // media type doesn't match
+                                    }
 
-            // so, we have four potential conditions when up to three variables are presented
-            //  1. href
-            //  2. href & rel
-            //  3. href & type
-            //  4. href & rel & type
-            return true; // it seems to match, and it has an url.
-          }
-          return false; // no match;
-        });
-      } else {
-        log.warn('Array input expected - filterLinks');
-        return []; // No links match the filter requirements.
-      }
-    }),
-  );
+                                    // so, we have four potential conditions when up to three variables are presented
+                                    //  1. href
+                                    //  2. href & rel
+                                    //  3. href & type
+                                    //  4. href & rel & type
+                                    return true; // it seems to match, and it has an url.
+                                }
+                                return false; // no match;
+                            });
+                        } else {
+                            log.warn('Array input expected - filterLinks');
+                            return []; // No links match the filter requirements.
+                        }
+                    }),
+    );
 }
 
 /**
@@ -295,7 +294,7 @@ export function filterLinks(links: LinkType, rels: RelationshipType, mediaType?:
  * @return whether there is one or more matching links
  */
 export function matches(links: LinkType, relationshipType: RelationshipType, mediaType?: MediaType): boolean {
-  return filter(links, relationshipType, mediaType).length > 0;
+    return filter(links, relationshipType, mediaType).length > 0;
 }
 
 /**
@@ -314,25 +313,25 @@ export function matches(links: LinkType, relationshipType: RelationshipType, med
  * @return an array of links that match
  */
 export function filter(arg: LinkType, relationshipType: RelationshipType, mediaType?: MediaType): Link[] {
-  mediaType = mediaType || '*/*';
+    mediaType = mediaType || '*/*';
 
-  if (arg instanceof Array) {
-    // filter an array of JSON link objects
-    return filterLinks(arg, relationshipType, mediaType);
-  } else if (instanceOfLinkedRepresentation(arg)) {
-    // Filter based on a representation with an array on 'links'
-    return filterRepresentation(arg, relationshipType, mediaType);
-  } else if (arg === 'HEAD') {
-    // Filter 'link' elements from the 'head' element of the DOM, this is a
-    // shortcut method so the caller doesn't have to express "$('HEAD')[0]"
+    if (arg instanceof Array) {
+        // filter an array of JSON link objects
+        return filterLinks(arg, relationshipType, mediaType);
+    } else if (instanceOfLinkedRepresentation(arg)) {
+        // Filter based on a representation with an array on 'links'
+        return filterRepresentation(arg, relationshipType, mediaType);
+    } else if (arg === 'HEAD') {
+        // Filter 'link' elements from the 'head' element of the DOM, this is a
+        // shortcut method so the caller doesn't have to express "$('HEAD')[0]"
 
-    // NOTE: that the relationshipType is likely to be 'api'
-    return filterDom(document.querySelectorAll('head')[0], relationshipType, mediaType);
-  } else if (arg instanceof Element) {
-    // Filter 'link' elements from the DOM
-    return filterDom(arg, relationshipType, mediaType);
-  }
-  return [];
+        // NOTE: that the relationshipType is likely to be 'api'
+        return filterDom(document.querySelectorAll('head')[0], relationshipType, mediaType);
+    } else if (arg instanceof Element) {
+        // Filter 'link' elements from the DOM
+        return filterDom(arg, relationshipType, mediaType);
+    }
+    return [];
 }
 
 /**
@@ -344,18 +343,18 @@ export function filter(arg: LinkType, relationshipType: RelationshipType, mediaT
  * @return The uri of the relationship
  */
 export function getUri(
-  links: LinkType,
-  relationshipType: RelationshipType,
-  mediaType?: MediaType,
-  defaultValue?: string | undefined,
+        links: LinkType,
+        relationshipType: RelationshipType,
+        mediaType?: MediaType,
+        defaultValue?: string | undefined,
 ): Uri | undefined {
-  const [link] = filter(links, relationshipType, mediaType);
-  if (link) {
-    return link.href;
-  } else {
-    logError(links, relationshipType, mediaType);
-    return defaultValue;
-  }
+    const [link] = filter(links, relationshipType, mediaType);
+    if (link) {
+        return link.href;
+    } else {
+        logError(links, relationshipType, mediaType);
+        return defaultValue;
+    }
 }
 
 /**
@@ -366,11 +365,11 @@ export function getUri(
  * @return The title of the relationship
  */
 export function getTitle(links: LinkType, relationshipType: RelationshipType, mediaType?: MediaType): string {
-  const [link] = filter(links, relationshipType, mediaType);
-  if (link) {
-    return link.title || '';
-  } else {
-    logError(links, relationshipType, mediaType);
-    return '';
-  }
+    const [link] = filter(links, relationshipType, mediaType);
+    if (link) {
+        return link.title || '';
+    } else {
+        logError(links, relationshipType, mediaType);
+        return '';
+    }
 }

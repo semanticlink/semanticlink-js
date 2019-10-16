@@ -20,22 +20,22 @@
  *       }
  */
 export interface Link {
-  /**
-   * A well known (or custom) relationship types e.g `collection`, `first`, `self`, `item`
-   */
-  rel: string;
-  /**
-   * The URI (location) of the representation in which to perform HTTP verbs e.g GET, POST, PUT, DELETE, PATCH, OPTIONS
-   */
-  href: string;
-  /**
-   * A well known mime type. e.g. `application/json`, `text/html`, `text/uri-list`
-   */
-  type?: string;
-  /**
-   * An arbitrary string that can be used for human readable aspects or machine categorisation
-   */
-  title?: string;
+    /**
+     * A well known (or custom) relationship types e.g `collection`, `first`, `self`, `item`
+     */
+    rel: string;
+    /**
+     * The URI (location) of the representation in which to perform HTTP verbs e.g GET, POST, PUT, DELETE, PATCH, OPTIONS
+     */
+    href: string;
+    /**
+     * A well known mime type. e.g. `application/json`, `text/html`, `text/uri-list`
+     */
+    type?: string;
+    /**
+     * An arbitrary string that can be used for human readable aspects or machine categorisation
+     */
+    title?: string;
 }
 
 /**
@@ -72,18 +72,18 @@ export interface Link {
  *       }
  */
 export interface LinkedRepresentation {
-  links: Link[];
+    links: Link[];
 }
 
 export interface FeedItemRepresentation {
-  /**
-   * Uri of the resource in the collection
-   */
-  id: string;
-  /**
-   * Title of the resource
-   */
-  title?: string;
+    /**
+     * Uri of the resource in the collection
+     */
+    id: string;
+    /**
+     * Title of the resource
+     */
+    title?: string;
 }
 
 /**
@@ -91,24 +91,24 @@ export interface FeedItemRepresentation {
  * may contain links to 'next', 'previous', 'first' and 'last'.
  */
 export interface CollectionRepresentation extends LinkedRepresentation {
-  /**
-   * Set of entries for a collection. This the sparsely populated list that has a
-   * machine readable and human readable identity
-   *
-   * @example
-   *
-   * In JSON:
-   *
-   * {
-   *  links: ...
-   *  items: [
-   *    {
-   *      id: "http://example.com/todo/1",  <-- machine-readable id
-   *      title: "First Resource"           <-- human-readable identifier
-   *  ]
-   * }
-   */
-  items: LinkedRepresentation[];
+    /**
+     * Set of entries for a collection. This the sparsely populated list that has a
+     * machine readable and human readable identity
+     *
+     * @example
+     *
+     * In JSON:
+     *
+     * {
+     *  links: ...
+     *  items: [
+     *    {
+     *      id: "http://example.com/todo/1",  <-- machine-readable id
+     *      title: "First Resource"           <-- human-readable identifier
+     *  ]
+     * }
+     */
+    items: LinkedRepresentation[];
 }
 
 /**
@@ -120,25 +120,25 @@ export interface CollectionRepresentation extends LinkedRepresentation {
  * This implementation is not part of the semantic link utility library.
  */
 export interface FeedRepresentation extends LinkedRepresentation {
-  /**
-   * WARNING: This field is used for both
-   *   the wire level value as a {@link FeedItemRepresentation} and the in-memory (client) representation as the
-   *   resource of the given type with a base type of {@link LinkedRepresentation}
-   */
-  items: FeedItemRepresentation[];
+    /**
+     * WARNING: This field is used for both
+     *   the wire level value as a {@link FeedItemRepresentation} and the in-memory (client) representation as the
+     *   resource of the given type with a base type of {@link LinkedRepresentation}
+     */
+    items: FeedItemRepresentation[];
 }
 
 /**
  * A form used to describe the format of a representation for perform a POST.
  */
 export interface GroupItemRepresentation extends FormItemRepresentation {
-  items: FormItemRepresentation;
+    items: FormItemRepresentation;
 }
 
 export interface FormItemRepresentation {
-  id: string;
-  type: string;
-  name: string;
-  description: string;
-  items: FormItemRepresentation;
+    id: string;
+    type: string;
+    name: string;
+    description: string;
+    items: FormItemRepresentation;
 }

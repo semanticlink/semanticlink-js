@@ -169,6 +169,27 @@ class LinkUtil {
             return defaultValue;
         }
     }
+    /**
+     * Get the first link that matches the filter criteria, or return undefined if there is no match
+     * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
+     * @param relationshipType the descriptive attribute attached to define the type of link/relationship
+     * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
+     * @param defaultValue empty string if not specified
+     * @return The uri of the relationship
+     */
+    public static getLink(
+            links: LinkType,
+            relationshipType: RelationshipType,
+            mediaType?: MediaType,
+            defaultValue?: Link ): Link | undefined {
+        const [link] = LinkUtil.filter(links, relationshipType, mediaType);
+        if (link) {
+            return link;
+        } else {
+            LinkUtil.logError(links, relationshipType, mediaType);
+            return defaultValue;
+        }
+    }
 
     /**
      * Query whether the 'links' has one or more link elements that match the given criteria.
@@ -461,4 +482,4 @@ export const matches = LinkUtil.matches;
 export const filter = LinkUtil.filter;
 export const getUri = LinkUtil.getUri;
 export const getTitle = LinkUtil.getTitle;
-export default Link;
+export default LinkUtil;

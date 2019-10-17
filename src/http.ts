@@ -1,10 +1,10 @@
 import axios, { AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
 import {
     CollectionRepresentation,
-    filter,
     Link,
     LinkedRepresentation,
     LinkType,
+    LinkUtil,
     MediaType,
     RelationshipType,
 } from './index';
@@ -139,9 +139,9 @@ export function link(
         cancellable?: Cancellable,
         options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    const [item] = filter(links, relationshipType, mediaType);
-    if (item && item.href) {
-        return httpRequest(cancellable as CancelToken, data, verb, item, mediaType, options);
+    const aLink = LinkUtil.getLink(links, relationshipType, mediaType);
+    if (aLink && aLink.href) {
+        return httpRequest(cancellable as CancelToken, data, verb, aLink, mediaType, options);
     } else {
         return Promise.reject(new Error('The resource doesn\'t support the required interface'));
     }
@@ -168,9 +168,9 @@ export function tryLink(
         cancellable?: Cancellable,
         defaultValue?: LinkedRepresentation,
         options?: AxiosRequestConfig): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    const [item] = filter(links, relationshipType, mediaType as MediaType);
-    if (item && item.href) {
-        return httpRequest(cancellable as CancelToken, data, verb, item, mediaType, options);
+    const aLink = LinkUtil.getLink(links, relationshipType, mediaType as MediaType);
+    if (aLink && aLink.href) {
+        return httpRequest(cancellable as CancelToken, data, verb, aLink, mediaType, options);
     } else {
         return Promise.resolve({
             data: defaultValue as LinkedRepresentation,

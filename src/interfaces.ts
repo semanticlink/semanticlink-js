@@ -99,7 +99,7 @@ export interface FeedItemRepresentation {
  *
  * @see {@link FeedRepresentation}
  */
-export interface CollectionRepresentation<T extends LinkedRepresentation> extends LinkedRepresentation {
+export interface CollectionRepresentation<T extends LinkedRepresentation = LinkedRepresentation> extends LinkedRepresentation {
     /**
      * Set of entries for a collection. This the sparsely populated list that has a
      * machine readable and human readable identity

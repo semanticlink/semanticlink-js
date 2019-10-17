@@ -87,10 +87,19 @@ export interface FeedItemRepresentation {
 }
 
 /**
- * A representation of a collection of resources. The links~
- * may contain links to 'next', 'previous', 'first' and 'last'.
+ * This is a virtual representation (that should never be used across the wire). It is
+ * used as a client side representation of a collection of homogeneous {@link LinkedRepresentation}s
+ * that are from a {@link FeedRepresentation}.
+ *
+ * The individual items can be sparse (where the {@link LinkedRepresentation} is constructed from
+ * the id and title of the {@link FeedItemRepresentation}) or fully populated where the representation
+ * is obtained from the origin server.
+ *
+ * A representation of a collection of resources.
+ *
+ * @see {@link FeedRepresentation}
  */
-export interface CollectionRepresentation extends LinkedRepresentation {
+export interface CollectionRepresentation<T extends LinkedRepresentation> extends LinkedRepresentation {
     /**
      * Set of entries for a collection. This the sparsely populated list that has a
      * machine readable and human readable identity
@@ -108,7 +117,7 @@ export interface CollectionRepresentation extends LinkedRepresentation {
      *  ]
      * }
      */
-    items: LinkedRepresentation[];
+    items: T[];
 }
 
 /**

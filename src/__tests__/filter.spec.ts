@@ -1,5 +1,5 @@
 import each from 'jest-each';
-import { filter, getTitle, getUri, Link, LinkedRepresentation, matches } from '../index';
+import { filter, getTitle, getUri, Link, LinkedRepresentation, matches, RelationshipType } from '../index';
 
 describe('Link Representation ', () => {
     const testRelsOnly = [
@@ -63,7 +63,7 @@ describe('Link Representation ', () => {
 
         const rels = [
             ['null is wilcard', 'tags', null, 4],
-            ['empty is wildcard', 'tags', '', 4],
+            ['empty is empty', 'tags', '', 1],
             ['wildcard', 'tags', '*', 4],
             ['wildcard', 'tags', '*/*', 4],
             ['specific mediaType does not include non-specified', 'tags', 'application/json', 2],
@@ -111,6 +111,41 @@ describe('Link Representation ', () => {
             expect(getUri(representation, 'empty', undefined, 'a')).toBe('a');
         });
     });
+});
+
+
+describe('get specific url', () => {
+    /**
+     * Mulitple links to search through where the 'tags' returns multiple links
+     */
+    const links: LinkedRepresentation = {
+        links: [
+            { rel: 'tags', href: 'http://example.com/tag/1', title: 'aaa', type: 'application/json' },
+            { rel: 'tags', href: 'http://example.com/tag/2', title: 'bob', type: 'text/uri-list' },
+            { rel: 'tags', href: 'http://example.com/tag/3', type: 'application/json' },
+            { rel: 'tags', href: 'http://example.com/tag/4' },
+            { rel: 'tags', href: 'http://example.com/tag/5', title: 't1' },
+            { rel: 'tags', href: 'http://example.com/tag/6', title: 't2' },
+            { rel: 'tags', href: 'http://example.com/tag/7', title: 't2' },
+            { rel: 'edit-form', href: 'http://example.com/tag/edit/form', type: 'text/uri-list' },
+            { rel: 'edit-form', href: 'http://example.com/tag/edit/form', type: 'application/json-path+json' },
+            { rel: 'self', href: 'http://example.com/1', type: 'application/json' },
+        ],
+    };
+
+    const rels = [
+        ['empty link relation', '', undefined],
+        ['by title', { rel: 'tags', title: 't1' }, 'http://example.com/tag/5'],
+        ['second selector', ['invalid', { rel: 'tags', title: 't2' }], 'http://example.com/tag/6'],
+        ['second selector', ['invalid', { rel: 'tags', title: 't1' }], 'http://example.com/tag/5'],
+        ['no title', ['invalid', { rel: 'tags' }], 'http://example.com/tag/1'],
+        ['empty title', ['invalid', { rel: 'tags', title: '' }], 'http://example.com/tag/3'],
+    ];
+
+    each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: RelationshipType, expected: string) => {
+                expect(getUri(links, rel)).toBe(expected);
+            },
+    );
 });
 
 describe('Errors and logging', () => {

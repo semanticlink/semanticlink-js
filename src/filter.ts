@@ -74,22 +74,29 @@ export interface LinkSelector {
  *
  * @see {@link http://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types}
  */
-export function isALinkSelector(item: any): item is LinkSelector {
-    return (item as LinkSelector).rel !== undefined;
+export function instanceOfLinkSelector(item: any): item is LinkSelector {
+    const asItem = item as LinkSelector;
+    if (asItem && (asItem).rel !== undefined) {
+        return true;
+    }
+    return false
 }
 
 /**
- * A guard to detect whether the object is a {@link LinkedRepresentation}
+ * A guard to detect whether the object is a {@link LinkedRepresentation}. A linked representation
+ * must be an object with an array called 'links'.
  *
  * @see https://stackoverflow.com/questions/14425568/interface-type-check-with-typescript
  * @param object
  * @returns whether the object is an instance on the interface
  */
 export function instanceOfLinkedRepresentation(object: any): object is LinkedRepresentation {
-    if (object == null || typeof object === 'string') {
+    const asObject = object as LinkedRepresentation;
+    if (asObject && typeof object !== 'string' && Array.isArray(object.links)) {
+        return true;
+    } else {
         return false;
     }
-    return 'links' in object;
 }
 
 /**
@@ -447,14 +454,14 @@ class LinkUtil {
             return [{ rel: rels, mediaType } as LinkSelector];
         }
         // Convert a single LinkSelector to an array
-        if (isALinkSelector(rels)) {
+        if (instanceOfLinkSelector(rels)) {
             return [rels as LinkSelector];
         }
 
         // Normalise arrays of strings/RegExp/LinkSelector
         if (Array.isArray(rels)) {
             // Check for a homogeneous array of LinkSelector
-            if (rels.every((rel: any) => isALinkSelector(rel))) {
+            if (rels.every((rel: any) => instanceOfLinkSelector(rel))) {
                 return rels as LinkSelector[];
             }
             return (rels as Array<RegExp | string | LinkSelector>)
@@ -467,7 +474,7 @@ class LinkUtil {
                             return { rel: item, mediaType } as LinkSelector;
                         }
 
-                        if (isALinkSelector(item)) {
+                        if (instanceOfLinkSelector(item)) {
                             return item as LinkSelector;
                         }
                         throw new Error(`Unsupported link relationship selector`);

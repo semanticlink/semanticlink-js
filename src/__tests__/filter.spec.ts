@@ -1,5 +1,15 @@
 import each from 'jest-each';
-import { filter, getTitle, getUri, Link, LinkedRepresentation, matches, RelationshipType } from '../index';
+import {
+    filter,
+    getTitle,
+    getUri,
+    instanceOfLinkedRepresentation,
+    instanceOfLinkSelector,
+    Link,
+    LinkedRepresentation,
+    matches,
+    RelationshipType,
+} from '../index';
 
 describe('Link Representation ', () => {
     const testRelsOnly = [
@@ -158,4 +168,44 @@ describe('Errors and logging', () => {
     test('empty Element', () => {
         expect(matches({} as Element, '')).toBeFalsy();
     });
+});
+
+describe('type guard - link selector ', () => {
+    const rels = [
+        ['null', '', false],
+        ['undefined', undefined, false],
+        ['string', 'hello', false],
+        ['number', 5, false],
+        ['regex', /aa/, false],
+        ['empty', {}, false],
+        ['other structure', {bob: ''}, false],
+        ['valid', { rel: 'hello' }, true],
+    ];
+
+    each(rels).test('filter - %s: (%s, %s)', (desc: any, anObject: any, expected: boolean) => {
+                expect(instanceOfLinkSelector(anObject)).toBe(expected);
+            },
+    );
+});
+
+
+describe('type guard - link selector ', () => {
+    const rels = [
+        ['null', '', false],
+        ['undefined', undefined, false],
+        ['string', 'hello', false],
+        ['number', 5, false],
+        ['regex', /aa/, false],
+        ['empty', {}, false],
+        ['other structure', {bob: ''}, false],
+        ['invalid links - number', { links: 5 }, false],
+        ['invalid links - string', { links: '' }, false],
+        ['invalid links - object', { links: {} }, false],
+        ['valid', { links: [] }, true],
+    ];
+
+    each(rels).test('filter - %s: (%s, %s)', (desc: any, anObject: any, expected: boolean) => {
+                expect(instanceOfLinkedRepresentation(anObject)).toBe(expected);
+            },
+    );
 });

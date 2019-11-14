@@ -79,7 +79,7 @@ export function instanceOfLinkSelector(item: any): item is LinkSelector {
     if (asItem && (asItem).rel !== undefined) {
         return true;
     }
-    return false
+    return false;
 }
 
 /**
@@ -176,6 +176,7 @@ class LinkUtil {
             return defaultValue;
         }
     }
+
     /**
      * Get the first link that matches the filter criteria, or return undefined if there is no match
      * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
@@ -188,7 +189,7 @@ class LinkUtil {
             links: LinkType,
             relationshipType: RelationshipType,
             mediaType?: MediaType,
-            defaultValue?: Link ): Link | undefined {
+            defaultValue?: Link): Link | undefined {
         const [link] = LinkUtil.filter(links, relationshipType, mediaType);
         if (link) {
             return link;
@@ -374,31 +375,22 @@ class LinkUtil {
             relationshipType: RelationshipType,
             mediaType?: MediaType): string {
         const allLinks = LinkUtil.filter(links, '*', '*');
-        let mediaTypeDetails = ' (' + mediaType + ')';
+        let mediaTypeDetails = ` (${mediaType})`;
         if (!mediaType) {
             mediaTypeDetails = '';
         }
 
-        return (
-                'The semantic interface \'' +
-                relationshipType +
-                '\'' +
-                mediaTypeDetails +
-                ' is not available. ' +
-                allLinks.length +
-                ' available links include ' +
-                allLinks
-                        .map(link => {
-                            if (link.type && link.type !== '*' && link.type !== '*/*') {
-                                return '"' + link.rel + '" (' + link.type + ')';
-                            } else if (link.rel && link.rel.match(/self|canonical/)) {
-                                return '"self: ' + link.href + '"';
-                            } else {
-                                return '"' + link.rel + '"';
-                            }
-                        })
-                        .join(', ')
-        );
+        function linkName(link: Link): string {
+            if (link.type && link.type !== '*' && link.type !== '*/*') {
+                return `"${link.rel}" (${link.type})`;
+            } else if (link.rel && link.rel.match(/self|canonical/)) {
+                return `"self: ${link.href}"`;
+            } else {
+                return `"${link.rel}"`;
+            }
+        }
+
+        return `The semantic interface '${relationshipType}'${mediaTypeDetails} is not available. ${allLinks.length} available links include ${allLinks.map(linkName).join(', ')}`;
     }
 
     /**

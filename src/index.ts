@@ -6,3 +6,4 @@ export * from './interfaces';
 export * from './filter';
 export * from './http';
 export { default as LinkUtil } from './filter';
+export { default as HttpUtil } from './http';

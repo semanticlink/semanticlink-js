@@ -19,7 +19,7 @@
     "checkJs": false,
     "pretty": true,
     "outDir": "lib",
-    "noEmit": true,
+    "noEmit": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,

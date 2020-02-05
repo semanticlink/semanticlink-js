@@ -9,7 +9,7 @@
       "dom.iterable"
     ],
     "declaration": true,
-    "target": "esnext",
+    "target": "es6",
     "module": "esnext",
     "strict": true,
     "importHelpers": true,
@@ -22,17 +22,17 @@
     "noEmit": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "baseUrl": ".",
-    "types": [
-      "jest"
-    ]
+    "types": []
   },
   "include": [
     "src"
   ],
   "exclude": [
     "node_modules",
-    "**/__tests__/*"
+    "**/__tests__/*",
+    "lib",
+    "__mocks__"
   ]
 }

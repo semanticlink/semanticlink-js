@@ -1,27 +1,19 @@
-import { CancelToken } from 'axios';
 import * as semanticLink from '../http';
-import { _delete, del, get, post, tryGet } from '../http';
+import { del, get, post, tryGet } from '../http';
 import { LinkedRepresentation } from '../interfaces';
-
-const cancelToken: CancelToken = {
-    promise: Promise.reject(),
-    throwIfRequested: () => {
-        return undefined;
-    },
-};
 
 describe('Get', () => {
     describe('should match on /self/ returning a resolved promise', () => {
-        const resource = {
+        const resource: LinkedRepresentation = {
             links: [{ rel: 'self', href: 'https://api.example.com/' }],
         };
 
         /**
          * Note the mock on axios just returns the response data
          */
-        const response = {
+        const calledWith = {
             cancelToken: undefined,
-            data: {},
+            data: undefined,
             method: 'GET',
             url: 'https://api.example.com/',
         };
@@ -33,22 +25,22 @@ describe('Get', () => {
 
         it('promise syntax with resovles', async () => {
             expect.assertions(1);
-            await expect(get(resource, /self/)).resolves.toEqual(response);
+            await expect(get(resource, /self/)).resolves.toEqual(calledWith);
         });
 
         /**
          * Avoid use this style which relies on use of 'return' rather than 'async'
          */
         describe('promise not async', () => {
-            it('promise syntax with resovles', () => {
+            it('promise syntax with resolves', () => {
                 expect.assertions(1);
-                return expect(get(resource, /self/)).resolves.toEqual(response);
+                return expect(get(resource, /self/)).resolves.toEqual(calledWith);
             });
 
             it('promise syntax', () => {
                 expect.assertions(1);
                 return get(resource, /self/).then(result => {
-                    expect(result).toEqual(response);
+                    expect(result).toEqual(calledWith);
                 });
             });
         });
@@ -61,18 +53,18 @@ describe('Get', () => {
             it('inline', async () => {
                 expect.assertions(1);
                 const result = await get(resource, /self/);
-                expect(result).toEqual(response);
+                expect(result).toEqual(calledWith);
             });
 
             it('with resolves', async () => {
                 expect.assertions(1);
-                await expect(get(resource, /self/)).resolves.toEqual(response);
+                await expect(get(resource, /self/)).resolves.toEqual(calledWith);
             });
 
             it('with promise chain', async () => {
                 expect.assertions(1);
                 await get(resource, /self/).then(res => {
-                    expect(res).toEqual(response);
+                    expect(res).toEqual(calledWith);
                 });
             });
 
@@ -113,7 +105,7 @@ describe('Get', () => {
         describe('does request', () => {
             const response = {
                 cancelToken: undefined,
-                data: {},
+                data: undefined,
                 method: 'GET',
                 url: 'https://api.example.com/',
             };
@@ -128,41 +120,38 @@ describe('Get', () => {
         });
 
         describe('specific media type returns default value', () => {
-            const responseWithDefaultValue = {
-                data: { links: [] },
-                headers: [],
-                status: 200,
+            const calledWith = {
+                data: undefined,
+                method: 'GET',
+                url: 'https://api.example.com/',
             };
 
             it('no cancel token', async () => {
-                expect(await tryGet(resource, /self/, 'text/uri-list', { links: [] } as LinkedRepresentation)).toEqual(
-                        responseWithDefaultValue,
-                );
+                const actual = await tryGet(resource, /self/, { links: [] } as LinkedRepresentation);
+                expect(actual).toEqual(calledWith);
             });
 
             it('all', async () => {
                 expect(
-                        await tryGet(resource, /self/, 'text/uri-list', cancelToken, { links: [] } as LinkedRepresentation),
-                ).toEqual(responseWithDefaultValue);
+                        await tryGet(resource, /self/, { links: [] } as LinkedRepresentation),
+                ).toEqual(calledWith);
             });
         });
 
         describe('match returns with cancel token', () => {
-            const responseWithCancel = {
-                cancelToken,
-                data: {},
+            const calledWith = {
+                data: undefined,
                 method: 'GET',
                 url: 'https://api.example.com/',
             };
 
             it('no media or default value', async () => {
-                expect(await tryGet(resource, /self/, cancelToken)).toEqual(responseWithCancel);
+                expect(await tryGet(resource, /self/)).toEqual(calledWith);
             });
 
             it('no media with cancel and default', async () => {
-                expect(await tryGet(resource, /self/, cancelToken, { links: [] } as LinkedRepresentation)).toEqual(
-                        responseWithCancel,
-                );
+                expect(await tryGet(resource, /self/, { links: [] } as LinkedRepresentation))
+                        .toEqual(calledWith);
             });
         });
     });
@@ -190,75 +179,21 @@ describe('Delete', () => {
         test('del', () => {
             expect(typeof del).toBe(typeof Function);
         });
-
-        test('_delete', () => {
-            expect(typeof _delete).toBe(typeof Function);
-        });
-
-        test('delete', () => {
-            expect(typeof semanticLink.delete).toBe(typeof Function);
-        });
     });
+
+    const calledWith = {
+        cancelToken: undefined,
+        data: undefined,
+        method: 'DELETE',
+        url: 'https://api.example.com/collection',
+    };
 
     it('should match on /self/ returning a resolved promise', async () => {
         const resource = {
             links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
         };
 
-        const response = {
-            cancelToken: undefined,
-            data: undefined,
-            method: 'DELETE',
-            url: 'https://api.example.com/collection',
-        };
-
-        await expect(del(resource, /submit/)).resolves.toEqual(response);
-    });
-
-    it('should  match on /submit/ with media type', async () => {
-        const resource = {
-            links: [{ rel: 'submit', href: 'https://api.example.com/collection', type: 'text/uri-list' }],
-        };
-
-        const response = {
-            cancelToken: undefined,
-            data: 'http://api.example.com/item/1',
-            headers: { 'Content-Type': 'text/uri-list' },
-            method: 'DELETE',
-            url: 'https://api.example.com/collection',
-        };
-
-        await expect(del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')).resolves.toEqual(response);
-    });
-
-    it('should not match on /submit/ with media type', async () => {
-        const resource = {
-            links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
-        };
-
-        await del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1').catch(result => {
-            expect(result.message).toEqual('The resource doesn\'t support the required interface');
-        });
-
-        await expect(del(resource, /submit/, 'text/uri-list', 'http://api.example.com/item/1')).rejects.toEqual(
-                new Error('The resource doesn\'t support the required interface'),
-        );
+        await expect(del(resource, /submit/)).resolves.toEqual(calledWith);
     });
 });
 
-describe('Cancellable', () => {
-    test('should be able to move params', async () => {
-        const resource = {
-            links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
-        };
-
-        const response = {
-            cancelToken,
-            data: {},
-            method: 'GET',
-            url: 'https://api.example.com/collection',
-        };
-
-        await expect(get(resource, /submit/, cancelToken)).resolves.toEqual(response);
-    });
-});

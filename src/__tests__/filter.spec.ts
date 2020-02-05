@@ -4,12 +4,10 @@ import {
     getTitle,
     getUri,
     instanceOfLinkedRepresentation,
-    instanceOfLinkSelector,
-    Link,
-    LinkedRepresentation,
     matches,
     RelationshipType,
-} from '../index';
+} from '../filter';
+import { Link, LinkedRepresentation } from '../interfaces';
 
 describe('Link Representation ', () => {
     const testRelsOnly = [
@@ -31,7 +29,7 @@ describe('Link Representation ', () => {
         ['not found array string', ['canonical', 'last'], false],
     ];
 
-    describe('match rels only', () => {
+    describe('matches rels only', () => {
         /**
          * Single data point of only one link. It should be able to match
          *  on 'self' throughout the tests of
@@ -123,10 +121,9 @@ describe('Link Representation ', () => {
     });
 });
 
-
-describe('get specific url', () => {
+describe('getUri', () => {
     /**
-     * Mulitple links to search through where the 'tags' returns multiple links
+     * Multiple links to search through where the 'tags' returns multiple links
      */
     const links: LinkedRepresentation = {
         links: [
@@ -170,28 +167,10 @@ describe('Errors and logging', () => {
     });
 });
 
-describe('type guard - link selector ', () => {
+describe('type guard - instanceOfLinkedRepresentation ', () => {
     const rels = [
-        ['null', '', false],
-        ['undefined', undefined, false],
-        ['string', 'hello', false],
-        ['number', 5, false],
-        ['regex', /aa/, false],
-        ['empty', {}, false],
-        ['other structure', {bob: ''}, false],
-        ['valid', { rel: 'hello' }, true],
-    ];
-
-    each(rels).test('filter - %s: (%s, %s)', (desc: any, anObject: any, expected: boolean) => {
-                expect(instanceOfLinkSelector(anObject)).toBe(expected);
-            },
-    );
-});
-
-
-describe('type guard - link selector ', () => {
-    const rels = [
-        ['null', '', false],
+        ['empty', '', false],
+        ['null', null, false],
         ['undefined', undefined, false],
         ['string', 'hello', false],
         ['number', 5, false],
@@ -204,7 +183,7 @@ describe('type guard - link selector ', () => {
         ['valid', { links: [] }, true],
     ];
 
-    each(rels).test('filter - %s: (%s, %s)', (desc: any, anObject: any, expected: boolean) => {
+    each(rels).test('instanceOf - %s: (%s, %s)', (desc: any, anObject: any, expected: boolean) => {
                 expect(instanceOfLinkedRepresentation(anObject)).toBe(expected);
             },
     );

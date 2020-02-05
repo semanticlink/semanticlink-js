@@ -1,5 +1,7 @@
 import { Link, LinkedRepresentation } from './interfaces';
-import { log } from './logger';
+import logging from './logger';
+
+const log = logging.getLogger('LinkUtil');
 
 /**
  * A media type is a well known type/string (formerly known as mime type).
@@ -75,11 +77,12 @@ export interface LinkSelector {
  * @see {@link http://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types}
  */
 export function instanceOfLinkSelector(item: any): item is LinkSelector {
-    const asItem = item as LinkSelector;
-    if (asItem && (asItem).rel !== undefined) {
-        return true;
+
+    if (isNullOrUndefined(item)|| item === '') {
+        return false;
     }
-    return false;
+    const asItem = item as LinkSelector;
+    return asItem && (asItem).rel !== undefined;
 }
 
 /**
@@ -92,11 +95,7 @@ export function instanceOfLinkSelector(item: any): item is LinkSelector {
  */
 export function instanceOfLinkedRepresentation(object: any): object is LinkedRepresentation {
     const asObject = object as LinkedRepresentation;
-    if (asObject && typeof object !== 'string' && Array.isArray(object.links)) {
-        return true;
-    } else {
-        return false;
-    }
+    return !!(asObject && typeof object !== 'string' && Array.isArray(object.links));
 }
 
 /**
@@ -456,7 +455,7 @@ class LinkUtil {
             if (rels.every((rel: any) => instanceOfLinkSelector(rel))) {
                 return rels as LinkSelector[];
             }
-            return (rels as Array<RegExp | string | LinkSelector>)
+            return (rels as (RegExp | string | LinkSelector)[])
                     .map<LinkSelector>((item: RegExp | string | LinkSelector) => {
                         if (typeof item === 'string') {
                             return { rel: item as string, mediaType } as LinkSelector;

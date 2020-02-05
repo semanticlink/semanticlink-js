@@ -1,13 +1,9 @@
-import axios, { AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
-import {
-    CollectionRepresentation,
-    Link,
-    LinkedRepresentation,
-    LinkType,
-    LinkUtil,
-    MediaType,
-    RelationshipType,
-} from './index';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { Link, LinkedRepresentation } from './interfaces';
+import LinkUtil, { LinkType, MediaType, RelationshipType } from './filter';
+import logging from './logger';
+
+const log = logging.getLogger('HttpUtil');
 
 /**
  * Standard Http verbs
@@ -15,32 +11,12 @@ import {
 type Verb = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 /**
- * Wrapper type around the axios {@link CancelToken}
- */
-export type Cancellable = CancelToken;
-
-/**
- * Optional type that allows a param shifting
- */
-
-/**
- * As we do requests there are loads of media types that might be sent.
- *
- * @example
- *
- * - json
- * - form encoded
- * - text/url-list
- */
-export type AcrossTheWire = LinkedRepresentation | CollectionRepresentation | any;
-
-/**
- * The instance of {@link Axios} to use, which defaults to the global instance.
+ * The instance of {@link AxiosInstance} to use, which defaults to the global instance.
  */
 let anAxios: AxiosInstance = axios as AxiosInstance;
 
 /**
- * Provide a away for an application to specify the instance of {@link Axios} to use.
+ * Provide a away for an application to specify the instance of {@link AxiosInstance} to use.
  *
  * Historically this library has used the global Axios instance. This means that any
  * defaults or interceptors configured must be on the same global instance. This is
@@ -52,305 +28,157 @@ export function useAxios(a: AxiosInstance): void {
     anAxios = a;
 }
 
-/**
- * User Defined Type Guards
- */
 
-/**
- *
- * @param arg
- * @returns {boolean}
- */
-function isCancellable(arg: any): arg is Cancellable {
-    return arg && arg.promise !== undefined;
-}
+class HttpUtil {
 
-/**
- * This is always used in conjunction with {@link isCancellable} and thus checks it isn't one of those
- *
- * @alias !isCancellable
- * @param arg
- * @returns {boolean}
- */
-function isLinkedRepresentation(arg: any): arg is LinkedRepresentation {
-    return arg && arg.links !== undefined;
-}
-
-/**
- * This is always used in conjunction with {@link isCancellable} and thus checks it isn't one of those
- *
- * @alias !isCancellable
- * @param arg
- * @returns {boolean}
- */
-function isMediaType(arg: any): arg is MediaType {
-    return arg && typeof arg === 'string';
-}
-
-/**
- * Wrapper around axios to make the http request
- * @param {CancelToken} cancellable
- * @param {LinkedRepresentation} data
- * @param {Verb} verb
- * @param {Link} item
- * @param {MediaType} mediaType
- * @param options axios request config for overrides
- * @returns {AxiosPromise}
- * @private
- */
-function httpRequest(
-        cancellable: CancelToken,
-        data: LinkedRepresentation,
-        verb: Verb,
-        item: Link,
-        mediaType: MediaType,
-        options?: AxiosRequestConfig): AxiosPromise {
-    return anAxios({
-        ...{
-            cancelToken: cancellable,
-            data,
-            method: verb,
-            url: item.href,
-        },
-        ...(data && mediaType ? { headers: { 'Content-Type': mediaType } } : {}),
-        ...options,
-    });
-}
-
-/**
- * HTTP/xhr utilities that wrap http. It particularly ensures `Accept` headers are set.
- *
- * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
- * @param relationshipType the descriptive attribute attached to define the type of link/relationship
- * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
- * @param verb action to take use across http {@link Verb}
- * @param data the across-the-wire representation
- * @param cancellable a cancellable token to clear requests in the queue
- * @param options axios request config for overrides
- * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
- * @private
- */
-export function link(
-        links: LinkType,
-        relationshipType: RelationshipType,
-        mediaType: MediaType,
-        verb: Verb,
-        data: AcrossTheWire,
-        cancellable?: Cancellable,
-        options?: AxiosRequestConfig,
-): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    const aLink = LinkUtil.getLink(links, relationshipType, mediaType);
-    if (aLink && aLink.href) {
-        return httpRequest(cancellable as CancelToken, data, verb, aLink, mediaType, options);
-    } else {
-        return Promise.reject(new Error('The resource doesn\'t support the required interface'));
-    }
-}
-
-/**
- * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
- * @param relationshipType the descriptive attribute attached to define the type of link/relationship
- * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
- * @param verb action to take use across http {@link Verb}
- * @param data the across-the-wire representation
- * @param cancellable a cancellable token to clear requests in the queue
- * @param defaultValue be able to return a {@link LinkedRepresentation} in the case of failure
- * @param options axios request config for overrides
- * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
- * @private
- */
-export function tryLink(
-        links: LinkType,
-        relationshipType: RelationshipType,
-        mediaType: MediaType,
-        verb: Verb,
-        data: AcrossTheWire,
-        cancellable?: Cancellable,
-        defaultValue?: LinkedRepresentation,
-        options?: AxiosRequestConfig): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    const aLink = LinkUtil.getLink(links, relationshipType, mediaType as MediaType);
-    if (aLink && aLink.href) {
-        return httpRequest(cancellable as CancelToken, data, verb, aLink, mediaType, options);
-    } else {
-        return Promise.resolve({
-            data: defaultValue as LinkedRepresentation,
-            headers: [],
-            status: 200,
-        } as AxiosResponse);
-    }
-}
-
-/**
- * GET http request
- *
- * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
- * @param relationshipType the descriptive attribute attached to define the type of link/relationship
- * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
- * @param cancellable a cancellable token to clear requests in the queue
- * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
- */
-export function get(
-        links: LinkType,
-        relationshipType: RelationshipType,
-        mediaType?: MediaType | Cancellable,
-        cancellable?: Cancellable,
-): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    if (isCancellable(mediaType)) {
-        cancellable = mediaType as Cancellable;
-        mediaType = undefined;
+    /**
+     * Wrapper around axios to make the http request
+     */
+    private static httpRequest<TRequest, TResponse>(
+            verb: Verb,
+            item: Link,
+            content: TRequest,
+            contentType?: MediaType,
+            options?: AxiosRequestConfig)
+            : Promise<AxiosResponse<TResponse>> {
+        log.trace('Request [%s] \'%s\'', verb, item.href);
+        return anAxios({
+            ...{
+                cancelToken: options && options.cancelToken,
+                data: content,
+                method: verb,
+                url: item.href,
+            },
+            //
+            ...(content && contentType ? { headers: { 'Content-Type': contentType } } : {}),
+            ...options,
+        });
     }
 
-    return link(links, relationshipType, mediaType as MediaType, 'GET', {} as LinkedRepresentation, cancellable);
+    /**
+     * HTTP/xhr utilities that wrap http. It particularly ensures `Accept` headers are set.
+     *
+     * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
+     * @param relationshipType the descriptive attribute attached to define the type of link/relationship
+     * @param verb action to take use across http {@link Verb}
+     * @param content the across-the-wire representation
+     * @param contentType
+     * @param options?? axios request config for overrides
+     * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
+     * @private
+     */
+    private static link<TRequest, TResponse>(
+            links: LinkType,
+            relationshipType: RelationshipType,
+            verb: Verb,
+            content: TRequest,
+            contentType?: MediaType,
+            options?: AxiosRequestConfig,
+    ): Promise<AxiosResponse<TResponse>> {
+        const aLink = LinkUtil.getLink(links, relationshipType);
+        if (aLink && aLink.href) {
+            return HttpUtil.httpRequest(verb, aLink, content, contentType, options);
+        } else {
+            return Promise.reject(new Error('The resource doesn\'t support the required interface'));
+        }
+    }
+
+
+    /**
+     * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
+     * @param relationshipType the descriptive attribute attached to define the type of link/relationship
+     * @param verb action to take use across http {@link Verb}
+     * @param content the across-the-wire representation
+     * @param contentType
+     * @param defaultValue be able to return a {@link LinkedRepresentation} in the case of failure
+     * @param options axios request config for overrides
+     */
+    private static tryLink<TRequest, TResponse>(
+            links: LinkType,
+            relationshipType: RelationshipType,
+            verb: Verb,
+            content: TRequest,
+            contentType?: MediaType,
+            defaultValue?: TResponse,
+            options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
+        const aLink = LinkUtil.getLink(links, relationshipType);
+        if (aLink && aLink.href) {
+            return HttpUtil.httpRequest<TRequest, TResponse>(verb, aLink, content, contentType, options);
+        } else {
+            return Promise.resolve({
+                data: defaultValue,
+                headers: [],
+                status: 200,
+            } as AxiosResponse<TResponse>);
+        }
+    }
+
+    /**
+     * GET http request
+     */
+    public static get<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, options?: AxiosRequestConfig):
+            Promise<AxiosResponse<TResponse>> {
+        return HttpUtil.link(links, relationshipType, 'GET', undefined, undefined, options);
+    }
+
+    /**
+     * GET http request and ensures that the request will not throw an Error.
+     */
+    public static tryGet<TResponse>(
+            links: LinkType,
+            relationshipType: RelationshipType,
+            defaultValue?: TResponse,
+            options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
+        return HttpUtil.tryLink<any, TResponse>(
+                links,
+                relationshipType,
+                'GET',
+                undefined,
+                undefined,
+                defaultValue,
+                options);
+    }
+
+    /**
+     * PUT http request
+     */
+    public static put<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, content: TRequest, contentType?: MediaType, options?: AxiosRequestConfig):
+            Promise<AxiosResponse<TRequest>> {
+        return HttpUtil.link(links, relationshipType, 'PUT', content, contentType, options);
+    }
+
+    /**
+     * POST http request
+     */
+
+    public static post<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, content?: TRequest, contentType?: MediaType, options?: AxiosRequestConfig):
+            Promise<AxiosResponse<TResponse>> {
+        return HttpUtil.link(links, relationshipType, 'POST', content, contentType, options);
+    }
+
+    /**
+     * Patch http request
+     */
+
+    public static patch<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, content?: TRequest, contentType?: MediaType, options?: AxiosRequestConfig):
+            Promise<AxiosResponse<TResponse>> {
+        return HttpUtil.link(links, relationshipType, 'PATCH', content, contentType, options);
+    }
+
+    /**
+     * DELETE http request
+     */
+    public static del(links: LinkType, relationshipType: RelationshipType): Promise<AxiosResponse<void>> {
+        return HttpUtil.link(links, relationshipType, 'DELETE', undefined);
+    }
+
+
 }
 
-/**
- * GET http request and ensures that the request will not throw an Error.
- *
- * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
- * @param relationshipType the descriptive attribute attached to define the type of link/relationship
- * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
- * @param cancellable a cancellable token to clear requests in the queue
- * @param defaultValue be able to return a {@link LinkedRepresentation} in the case of failure
- * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
- */
-export function tryGet(
-        links: LinkType,
-        relationshipType: RelationshipType,
-        mediaType?: MediaType | Cancellable | LinkedRepresentation,
-        cancellable?: Cancellable | LinkedRepresentation,
-        defaultValue?: LinkedRepresentation): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    if (isCancellable(mediaType)) {
-        defaultValue = cancellable as LinkedRepresentation;
-        cancellable = mediaType as Cancellable;
-        mediaType = undefined;
-    }
+export const get = HttpUtil.get;
+export const tryGet = HttpUtil.tryGet;
+export const post = HttpUtil.post;
+export const patch = HttpUtil.patch;
+export const del = HttpUtil.del;
 
-    if (isLinkedRepresentation(mediaType)) {
-        defaultValue = mediaType as LinkedRepresentation;
-        mediaType = undefined;
-        cancellable = undefined;
-    }
-
-    if (isLinkedRepresentation(cancellable)) {
-        defaultValue = cancellable as LinkedRepresentation;
-        cancellable = undefined;
-    }
-
-    return tryLink(
-            links,
-            relationshipType,
-            mediaType as MediaType,
-            'GET',
-            {} as LinkedRepresentation,
-            cancellable,
-            defaultValue,
-    );
-}
-
-/**
- * PUT http request
- *
- * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
- * @param relationshipType the descriptive attribute attached to define the type of link/relationship
- * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
- * @param data the across-the-wire representation
- * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
- */
-export function put(
-        links: LinkType,
-        relationshipType: RelationshipType,
-        mediaType: MediaType | AcrossTheWire,
-        data?: AcrossTheWire): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    if (data === undefined) {
-        data = mediaType as AcrossTheWire;
-        mediaType = undefined;
-    }
-
-    return link(links, relationshipType, mediaType, 'PUT', data);
-}
-
-/**
- * POST http request
- *
- * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
- * @param relationshipType the descriptive attribute attached to define the type of link/relationship
- * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
- * @param data the across-the-wire representation
- * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
- */
-
-export function post(
-        links: LinkType,
-        relationshipType: RelationshipType,
-        mediaType: MediaType | AcrossTheWire,
-        data?: AcrossTheWire): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    if (data === undefined) {
-        data = mediaType as AcrossTheWire;
-        mediaType = undefined;
-    }
-
-    return link(links, relationshipType, mediaType, 'POST', data);
-}
-
-/**
- * Patch http request
- *
- * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
- * @param relationshipType the descriptive attribute attached to define the type of link/relationship
- * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
- * @param data the across-the-wire representation
- * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
- */
-
-export function patch(
-        links: LinkType,
-        relationshipType: RelationshipType,
-        mediaType: MediaType | AcrossTheWire,
-        data?: AcrossTheWire): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    if (data === undefined) {
-        data = mediaType as AcrossTheWire;
-        mediaType = undefined;
-    }
-
-    return link(links, relationshipType, mediaType, 'PATCH', data);
-}
-
-/**
- * DELETE http request
- *
- * @alias delete
- * @alias _delete
- * @param links the object that will contain the links to find. This is usually a {@link LinkedRepresentation}.
- * @param relationshipType the descriptive attribute attached to define the type of link/relationship
- * @param mediaType the  media (mime) type identifier of the resource. Default is * / *
- * @param data the across-the-wire representation
- * @return a promise containing the {@link LinkedRepresentation} in {@link AxiosResponse.data}
- */
-export function del(
-        links: LinkType,
-        relationshipType: RelationshipType,
-        mediaType?: MediaType | AcrossTheWire,
-        data?: AcrossTheWire): Promise<AxiosResponse<LinkedRepresentation | CollectionRepresentation>> {
-    if (!isMediaType(mediaType)) {
-        data = mediaType as AcrossTheWire;
-        mediaType = undefined;
-    }
-    return link(links, relationshipType, mediaType, 'DELETE', data);
-}
-
-/**
- * Alias to get around reserved works on function. Can used with import
- *
- * @example
- *
- * import * as semanticLink from 'semantic-link'
- *
- * semanticLink.delete(resource, rel);
- */
-export { del as delete };
-
-/**
- * @alias del
- * @deprecated use del
- */
-export { del as _delete };
+export default HttpUtil;

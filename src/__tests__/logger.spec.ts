@@ -1,27 +1,11 @@
-import { log, LogLevel, setLogLevel } from '../logger';
+import logging from '../logger';
+
+const log = logging.getLogger('LoggerSpec');
 
 describe('Logger', () => {
-    /**
-     * Haven't bother to mock out console
-     */
 
-    test('debug - show', () => {
-        setLogLevel(LogLevel.Debug);
+    test('debug - check wiring', () => {
         log.debug('should show something');
     });
 
-    test('debug - show single object', () => {
-        setLogLevel(LogLevel.Debug);
-        log.debug('should show something', { obj: 'value' });
-    });
-
-    test('debug - show multiple objects', () => {
-        setLogLevel(LogLevel.Debug);
-        log.debug('should show something', { obj: 'value' }, { another: 'then' });
-    });
-
-    test('debug - no show', () => {
-        setLogLevel(LogLevel.Warn);
-        log.debug('should not show anything');
-    });
 });

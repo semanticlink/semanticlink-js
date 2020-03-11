@@ -41,7 +41,7 @@ class HttpUtil {
             contentType?: MediaType,
             options?: AxiosRequestConfig)
             : Promise<AxiosResponse<TResponse>> {
-        log.trace('Request [%s] \'%s\'', verb, item.href);
+        log.debug('HTTP %s \'%s\'', verb, item.href);
         return anAxios({
             ...{
                 cancelToken: options && options.cancelToken,

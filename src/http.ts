@@ -73,8 +73,7 @@ class HttpUtil {
             verb: Verb,
             content: TRequest,
             contentType?: MediaType,
-            options?: AxiosRequestConfig,
-    ): Promise<AxiosResponse<TResponse>> {
+            options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
         const aLink = LinkUtil.getLink(links, relationshipType);
         if (aLink && aLink.href) {
             return HttpUtil.httpRequest(verb, aLink, content, contentType, options);
@@ -142,26 +141,36 @@ class HttpUtil {
     /**
      * PUT http request
      */
-    public static put<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, content: TRequest, contentType?: MediaType, options?: AxiosRequestConfig):
-            Promise<AxiosResponse<TRequest>> {
+    public static put<TRequest, TResponse>(
+            links: LinkType,
+            relationshipType: RelationshipType,
+            content: TRequest,
+            contentType?: MediaType,
+            options?: AxiosRequestConfig): Promise<AxiosResponse<TRequest>> {
         return HttpUtil.link(links, relationshipType, 'PUT', content, contentType, options);
     }
 
     /**
      * POST http request
      */
-
-    public static post<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, content?: TRequest, contentType?: MediaType, options?: AxiosRequestConfig):
-            Promise<AxiosResponse<TResponse>> {
+    public static post<TRequest, TResponse>(
+            links: LinkType,
+            relationshipType: RelationshipType,
+            content?: TRequest,
+            contentType?: MediaType,
+            options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
         return HttpUtil.link(links, relationshipType, 'POST', content, contentType, options);
     }
 
     /**
      * Patch http request
      */
-
-    public static patch<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, content?: TRequest, contentType?: MediaType, options?: AxiosRequestConfig):
-            Promise<AxiosResponse<TResponse>> {
+    public static patch<TRequest, TResponse>(
+            links: LinkType,
+            relationshipType: RelationshipType,
+            content?: TRequest,
+            contentType?: MediaType,
+            options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
         return HttpUtil.link(links, relationshipType, 'PATCH', content, contentType, options);
     }
 
@@ -171,14 +180,42 @@ class HttpUtil {
     public static del(links: LinkType, relationshipType: RelationshipType): Promise<AxiosResponse<void>> {
         return HttpUtil.link(links, relationshipType, 'DELETE', undefined);
     }
-
-
 }
 
+/**
+ * legacy export as a simple function.
+ * @deprecated Use HttpUtil.get
+ */
 export const get = HttpUtil.get;
+/**
+ * legacy export as a simple function.
+ * @deprecated Use HttpUtil.tryGet
+ */
 export const tryGet = HttpUtil.tryGet;
+/**
+ * legacy export as a simple function.
+ * @deprecated Use HttpUtil.post
+ */
 export const post = HttpUtil.post;
+/**
+ * legacy export as a simple function.
+ * @deprecated Use HttpUtil.put
+ */
+export const put = HttpUtil.put;
+/**
+ * legacy export as a simple function.
+ * @deprecated Use HttpUtil.patch
+ */
 export const patch = HttpUtil.patch;
+/**
+ * legacy export as a simple function.
+ * @deprecated Use HttpUtil.del
+ */
 export const del = HttpUtil.del;
+/**
+ * legacy export as a simple function, with a name which is a reserved word
+ * @deprecated Use HttpUtil.del
+ */
+export { del as delete };
 
 export default HttpUtil;

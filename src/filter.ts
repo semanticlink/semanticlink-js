@@ -1,7 +1,7 @@
+import anylogger from 'anylogger';
 import { Link, LinkedRepresentation } from './interfaces';
-import logging from './logger';
 
-const log = logging.getLogger('LinkUtil');
+const log = anylogger('FilterUtil');
 
 /**
  * A media type is a well known type/string (formerly known as mime type).

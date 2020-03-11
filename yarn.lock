@@ -1233,6 +1233,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
+"anylogger@git://github.com/semanticlink/anylogger.git":
+  version "0.22.0-ts"
+  resolved "git://github.com/semanticlink/anylogger.git#b1719000d601070f77ab9715725f6dd536125fa3"
+
 anymatch@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/anymatch/-/anymatch-2.0.0.tgz#bcb24b4f37934d9aa7ac17b4adaf89e7c76ef2eb"
@@ -4347,10 +4351,11 @@ typescript@^3.7.5:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
   integrity sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
 
-ulog@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/ulog/-/ulog-1.1.0.tgz#2b07708ceb0a27df35851105cc8399aa7c0edd75"
-  integrity sha512-oQDYGh4w/ykGSpffEuwkqFnL5BYJa5HeV5PhpkjuAFwJCyjp2KjT2YDcFa8y4ie8kejdXMwpFCSF6HNM5Kia4g==
+"ulog@git://github.com/semanticlink/ulog.git":
+  version "2.0.0-beta.6ts"
+  resolved "git://github.com/semanticlink/ulog.git#9580602261d3044f93872d2bdc05e4d7cb718014"
+  dependencies:
+    anylogger "git://github.com/semanticlink/anylogger.git"
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"

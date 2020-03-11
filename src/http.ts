@@ -1,9 +1,9 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Link, LinkedRepresentation } from './interfaces';
 import LinkUtil, { LinkType, MediaType, RelationshipType } from './filter';
-import logging from './logger';
+import anylogger from 'anylogger';
 
-const log = logging.getLogger('HttpUtil');
+const log = anylogger('HttpUtil');
 
 /**
  * Standard Http verbs

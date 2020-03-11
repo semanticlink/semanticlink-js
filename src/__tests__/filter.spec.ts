@@ -1,4 +1,5 @@
 import each from 'jest-each';
+import ulog from 'ulog';
 import {
     filter,
     getTitle,
@@ -8,6 +9,8 @@ import {
     RelationshipType,
 } from '../filter';
 import { Link, LinkedRepresentation } from '../interfaces';
+
+ulog.level = ulog.DEBUG;
 
 describe('Link Representation ', () => {
     const testRelsOnly = [

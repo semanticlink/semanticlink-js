@@ -1,6 +1,17 @@
+import { CancelToken } from 'axios';
+import ulog from 'ulog';
 import * as semanticLink from '../http';
 import { del, get, post, tryGet } from '../http';
 import { LinkedRepresentation } from '../interfaces';
+
+ulog.level = ulog.DEBUG;
+
+const cancelToken: CancelToken = {
+    promise: Promise.reject(),
+    throwIfRequested: () => {
+        return undefined;
+    },
+};
 
 describe('Get', () => {
     describe('should match on /self/ returning a resolved promise', () => {

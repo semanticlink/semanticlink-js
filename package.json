@@ -1,6 +1,6 @@
 {
   "name": "semantic-link",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A utility library for manipulating a list of links that form a semantic interface to a resource.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -47,10 +47,11 @@
     "ts-jest": "^25.2.0",
     "tslint": "^6.0.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "ulog": "git://github.com/semanticlink/ulog.git"
   },
   "dependencies": {
-    "axios": "0.19.2",
-    "ulog": "^1.1.0"
+    "anylogger": "git://github.com/semanticlink/anylogger.git",
+    "axios": "0.19.2"
   }
 }

@@ -153,6 +153,19 @@ interface WeightedMatch {
 
 const MaxWeight = 99999;
 
+/**
+ * Check if the code is running in a browser environment.
+ */
+function isBrowserEnvironment(globalThis:any): boolean {
+    try {
+        return globalThis === window;
+    } catch (e) {
+        return false;
+    }
+}
+const isBrowser = isBrowserEnvironment(this);
+
+
 class LinkUtil {
     /**
      * Get the first 'href' that matches the filter criteria, or return undefined if there is no match
@@ -304,7 +317,7 @@ class LinkUtil {
 
             // NOTE: that the relationshipType is likely to be 'api'
             return LinkUtil.filterDom(document.querySelectorAll('head')[0], relationshipType, mediaType);
-        } else if (arg instanceof Element) {
+        } else if (isBrowser && arg instanceof Element) {
             // Filter 'link' elements from the DOM
             return LinkUtil.filterDom(arg, relationshipType, mediaType);
         }

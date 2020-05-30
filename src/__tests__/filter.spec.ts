@@ -50,8 +50,8 @@ describe('Link Representation ', () => {
 
         [singleLink, multipleLinks].forEach(links => {
             each(testRelsOnly).test('%s: (%s, %s)', (desc: any, rel: any, expected: any) => {
-                        expect(matches(links, rel)).toBe(expected);
-                    },
+                expect(matches(links, rel)).toBe(expected);
+            }
             );
         });
     });
@@ -83,13 +83,13 @@ describe('Link Representation ', () => {
         ];
 
         each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) => {
-                    expect(filter(links, rel, mediaType).length).toBe(expected);
-                },
+            expect(filter(links, rel, mediaType).length).toBe(expected);
+        }
         );
 
         each(rels).test('matches %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) => {
-                    expect(matches(links, rel, mediaType)).toBe(expected > 0);
-                },
+            expect(matches(links, rel, mediaType)).toBe(expected > 0);
+        }
         );
     });
 
@@ -153,8 +153,8 @@ describe('getUri', () => {
     ];
 
     each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: RelationshipType, expected: string) => {
-                expect(getUri(links, rel)).toBe(expected);
-            },
+        expect(getUri(links, rel)).toBe(expected);
+    }
     );
 });
 
@@ -187,7 +187,7 @@ describe('type guard - instanceOfLinkedRepresentation ', () => {
     ];
 
     each(rels).test('instanceOf - %s: (%s, %s)', (desc: any, anObject: any, expected: boolean) => {
-                expect(instanceOfLinkedRepresentation(anObject)).toBe(expected);
-            },
+        expect(instanceOfLinkedRepresentation(anObject)).toBe(expected);
+    }
     );
 });

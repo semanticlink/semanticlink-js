@@ -1,22 +1,22 @@
 {
   "name": "semantic-link",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A utility library for manipulating a list of links that form a semantic interface to a resource.",
   "main": "lib/es5/index.js",
   "module": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "clean": "rimraf ./lib",
+    "clobber": "yarn run clean && rimraf ./node_modules",
+    "clean": "rimraf ./lib ./coverage",
     "test": "jest --config jestconfig.json",
     "test-watch": "jest --config jestconfig.json --watch",
     "test-coverage": "jest --config jestconfig.json --coverage",
     "build": "tsc && tsc -p ./tsconfig-es5.json",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "tslint -p tsconfig.json",
-    "prepare": "npm-run-all clean build",
-    "prepublishOnly": "npm-run-all test lint",
-    "preversion": "npm run lint",
-    "version": "npm run format && git add -A src",
+    "format": "eslint . --ext .js,.ts --fix",
+    "lint": "eslint . --ext .js,.ts",
+    "prepublishOnly": "yarn test && yarn run lint",
+    "preversion": "yarn run lint",
+    "version": "yarn run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
   "repository": {
@@ -37,25 +37,26 @@
   },
   "homepage": "https://github.com/semanticlink/semanticlink-js#readme",
   "devDependencies": {
-    "@babel/preset-env": "^7.8.4",
-    "@babel/preset-typescript": "^7.8.3",
-    "@types/jest": "^25.1.1",
+    "@babel/core": "^7.10.1",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/jest": "^25.2.3",
     "@types/jest-each": "^24.3.0",
-    "jest": "^25.1.0",
-    "jest-each": "^25.1.0",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^1.19.1",
-    "ts-jest": "^25.2.0",
-    "tslint": "^6.0.0",
-    "tslint-config-prettier": "^1.13.0",
-    "typescript": "^3.7.5",
+    "@typescript-eslint/eslint-plugin": "^3.0.2",
+    "@typescript-eslint/parser": "^3.0.2",
+    "babel-jest": "^26.0.1",
+    "eslint": "^7.1.0",
+    "jest": "^26.0.1",
+    "jest-each": "^26.0.1",
+    "ts-jest": "^26.0.0",
+    "typescript": ">=3.9.3",
     "ulog": "git://github.com/semanticlink/ulog.git"
   },
   "dependencies": {
     "anylogger": "git://github.com/semanticlink/anylogger.git",
-    "axios": "0.19.2"
+    "axios": "^0.19.2"
   },
   "peerDependencies": {
-    "tslib": "^1.11.1"
+    "tslib": ">=1.11"
   }
 }

@@ -5,4 +5,5 @@
  *
  * @returns what axios was called with
  */
-export default (config: any) => Promise.resolve(config)
+
+export default <T>(config: T): Promise<T> => Promise.resolve(config);

@@ -76,9 +76,9 @@ export interface LinkSelector {
  *
  * @see {@link http://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types}
  */
-export function instanceOfLinkSelector(item: any): item is LinkSelector {
+export function instanceOfLinkSelector(item: unknown): item is LinkSelector {
 
-    if (isNullOrUndefined(item)|| item === '') {
+    if (isNullOrUndefined(item) || item === '') {
         return false;
     }
     const asItem = item as LinkSelector;
@@ -93,9 +93,9 @@ export function instanceOfLinkSelector(item: any): item is LinkSelector {
  * @param object
  * @returns whether the object is an instance on the interface
  */
-export function instanceOfLinkedRepresentation(object: any): object is LinkedRepresentation {
+export function instanceOfLinkedRepresentation(object: unknown): object is LinkedRepresentation {
     const asObject = object as LinkedRepresentation;
-    return !!(asObject && typeof object !== 'string' && Array.isArray(object.links));
+    return !!(asObject && typeof object !== 'string' && Array.isArray(asObject.links));
 }
 
 /**
@@ -108,7 +108,7 @@ export function instanceOfLinkedRepresentation(object: any): object is LinkedRep
  * see
  *  - https://stackoverflow.com/a/28984306
  */
-export function isNullOrUndefined(x: any): x is undefined {
+export function isNullOrUndefined(x: unknown): x is undefined {
     return x == null;
 }
 
@@ -156,13 +156,14 @@ const MaxWeight = 99999;
 /**
  * Check if the code is running in a browser environment.
  */
-function isBrowserEnvironment(globalThis:any): boolean {
+function isBrowserEnvironment(globalThis: any): boolean {
     try {
         return globalThis === window;
     } catch (e) {
         return false;
     }
 }
+
 const isBrowser = isBrowserEnvironment(this);
 
 
@@ -176,10 +177,10 @@ class LinkUtil {
      * @return The uri of the relationship
      */
     public static getUri(
-            links: LinkType,
-            relationshipType: RelationshipType,
-            mediaType?: MediaType,
-            defaultValue?: string | undefined): Uri | undefined {
+        links: LinkType,
+        relationshipType: RelationshipType,
+        mediaType?: MediaType,
+        defaultValue?: string | undefined): Uri | undefined {
         const [link] = LinkUtil.filter(links, relationshipType, mediaType);
         if (link) {
             return link.href;
@@ -198,10 +199,10 @@ class LinkUtil {
      * @return The uri of the relationship
      */
     public static getLink(
-            links: LinkType,
-            relationshipType: RelationshipType,
-            mediaType?: MediaType,
-            defaultValue?: Link): Link | undefined {
+        links: LinkType,
+        relationshipType: RelationshipType,
+        mediaType?: MediaType,
+        defaultValue?: Link): Link | undefined {
         const [link] = LinkUtil.filter(links, relationshipType, mediaType);
         if (link) {
             return link;
@@ -259,9 +260,9 @@ class LinkUtil {
             if (LinkUtil.matchParameter(link.rel, selector.rel)) {
 
                 const titleIsAMatchOrNotRequired = isNullOrUndefined(selector.title) ||
-                        (LinkUtil.matchParameter(link.title || '', selector.title));
+                    (LinkUtil.matchParameter(link.title || '', selector.title));
                 const mediaTypeIsAMatchOrNotRequired = isNullOrUndefined(selector.mediaType) ||
-                        (LinkUtil.matchParameter(link.type || '', selector.mediaType));
+                    (LinkUtil.matchParameter(link.type || '', selector.mediaType));
                 if (titleIsAMatchOrNotRequired && mediaTypeIsAMatchOrNotRequired) {
                     return true;
                 }
@@ -271,22 +272,22 @@ class LinkUtil {
 
         const selectors = LinkUtil.makeSelectors(rels, mediaType);
         return links
-                .map<WeightedMatch>((link: Link) => {
-                    // Check the link is valid in that it has an href and rel (relationship)
-                    if (link.href && link.rel) {
-                        // Enumerate selectors until one is found that it a match. Record the
-                        // index of matching selector to use as a weighting.
-                        for (let selectorIndex = 0; selectorIndex < selectors.length; ++selectorIndex) {
-                            if (matchSingle(link, selectors[selectorIndex])) {
-                                return { link, weight: selectorIndex };
-                            }
+            .map<WeightedMatch>((link: Link) => {
+                // Check the link is valid in that it has an href and rel (relationship)
+                if (link.href && link.rel) {
+                    // Enumerate selectors until one is found that it a match. Record the
+                    // index of matching selector to use as a weighting.
+                    for (let selectorIndex = 0; selectorIndex < selectors.length; ++selectorIndex) {
+                        if (matchSingle(link, selectors[selectorIndex])) {
+                            return { link, weight: selectorIndex };
                         }
                     }
-                    return { link, weight: MaxWeight }; // no match;
-                })
-                .filter((match: WeightedMatch) => match.weight < MaxWeight)
-                .sort((l: WeightedMatch, r: WeightedMatch) => l.weight - r.weight)
-                .map<Link>((match: WeightedMatch) => match.link);
+                }
+                return { link, weight: MaxWeight }; // no match;
+            })
+            .filter((match: WeightedMatch) => match.weight < MaxWeight)
+            .sort((l: WeightedMatch, r: WeightedMatch) => l.weight - r.weight)
+            .map<Link>((match: WeightedMatch) => match.link);
     }
 
     /**
@@ -370,9 +371,9 @@ class LinkUtil {
      * @return an array of links that match
      */
     private static filterRepresentation(
-            representation: LinkedRepresentation,
-            relationshipType: RelationshipType,
-            mediaType: MediaType): Link[] {
+        representation: LinkedRepresentation,
+        relationshipType: RelationshipType,
+        mediaType: MediaType): Link[] {
         if (representation.links) {
             return LinkUtil.filterLinks(representation.links, relationshipType, mediaType);
         }
@@ -383,9 +384,9 @@ class LinkUtil {
      * A helper to log out readable error messages
      */
     private static makeNotFoundMessage(
-            links: LinkType,
-            relationshipType: RelationshipType,
-            mediaType?: MediaType): string {
+        links: LinkType,
+        relationshipType: RelationshipType,
+        mediaType?: MediaType): string {
         const allLinks = LinkUtil.filter(links, '*', '*');
         let mediaTypeDetails = ` (${mediaType})`;
         if (!mediaType) {
@@ -425,13 +426,13 @@ class LinkUtil {
      */
     private static matchParameter(linkString: string, matchString: string | RegExp): boolean {
         return (
-                (linkString && matchString instanceof RegExp && !!linkString.match(matchString)) ||
-                matchString === '*' ||
-                matchString === '*/*' ||
-                linkString === '*/*' ||
-                linkString === matchString ||
-                // explicit media types must limit and find specified link types
-                (matchString !== null && matchString !== '*/*' && matchString !== '*' && linkString === matchString)
+            (linkString && matchString instanceof RegExp && !!linkString.match(matchString)) ||
+            matchString === '*' ||
+            matchString === '*/*' ||
+            linkString === '*/*' ||
+            linkString === matchString ||
+            // explicit media types must limit and find specified link types
+            (matchString !== null && matchString !== '*/*' && matchString !== '*' && linkString === matchString)
         );
     }
 
@@ -469,20 +470,20 @@ class LinkUtil {
                 return rels as LinkSelector[];
             }
             return (rels as (RegExp | string | LinkSelector)[])
-                    .map<LinkSelector>((item: RegExp | string | LinkSelector) => {
-                        if (typeof item === 'string') {
-                            return { rel: item as string, mediaType } as LinkSelector;
-                        }
+                .map<LinkSelector>((item: RegExp | string | LinkSelector) => {
+                    if (typeof item === 'string') {
+                        return { rel: item as string, mediaType } as LinkSelector;
+                    }
 
-                        if (item instanceof RegExp) {
-                            return { rel: item, mediaType } as LinkSelector;
-                        }
+                    if (item instanceof RegExp) {
+                        return { rel: item, mediaType } as LinkSelector;
+                    }
 
-                        if (instanceOfLinkSelector(item)) {
-                            return item as LinkSelector;
-                        }
-                        throw new Error(`Unsupported link relationship selector`);
-                    }) as LinkSelector[];
+                    if (instanceOfLinkSelector(item)) {
+                        return item as LinkSelector;
+                    }
+                    throw new Error(`Unsupported link relationship selector`);
+                }) as LinkSelector[];
         }
         throw new Error(`Unsupported link relationship selector`);
     }

@@ -71,7 +71,7 @@ class HttpUtil {
         links: LinkType,
         relationshipType: RelationshipType,
         verb: Verb,
-        content: TRequest,
+        content?: TRequest,
         contentType?: MediaType,
         options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
         const aLink = LinkUtil.getLink(links, relationshipType);
@@ -117,7 +117,7 @@ class HttpUtil {
      */
     public static get<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, options?: AxiosRequestConfig):
         Promise<AxiosResponse<TResponse>> {
-        return HttpUtil.link(links, relationshipType, 'GET', undefined, undefined, options);
+        return HttpUtil.link<TRequest, TResponse>(links, relationshipType, 'GET', undefined, undefined, options);
     }
 
     /**
@@ -141,12 +141,12 @@ class HttpUtil {
     /**
      * PUT http request
      */
-    public static put<TRequest, TResponse>(
+    public static put<TRequest>(
         links: LinkType,
         relationshipType: RelationshipType,
         content: TRequest,
         contentType?: MediaType,
-        options?: AxiosRequestConfig): Promise<AxiosResponse<TRequest>> {
+        options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
         return HttpUtil.link(links, relationshipType, 'PUT', content, contentType, options);
     }
 

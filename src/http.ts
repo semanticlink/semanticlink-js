@@ -106,7 +106,7 @@ class HttpUtil {
         } else {
             return Promise.resolve({
                 data: defaultValue,
-                headers: [],
+                headers: {},
                 status: 200,
             } as AxiosResponse<TResponse>);
         }

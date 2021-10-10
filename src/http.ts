@@ -39,7 +39,7 @@ class HttpUtil {
         item: Link,
         content: TRequest,
         contentType?: MediaType,
-        options?: AxiosRequestConfig)
+        options?: AxiosRequestConfig<TRequest>)
         : Promise<AxiosResponse<TResponse>> {
         log.debug('HTTP %s \'%s\'', verb, item.href);
         return anAxios({
@@ -73,7 +73,7 @@ class HttpUtil {
         verb: Verb,
         content?: TRequest,
         contentType?: MediaType,
-        options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
+        options?: AxiosRequestConfig<TRequest>): Promise<AxiosResponse<TResponse>> {
         const aLink = LinkUtil.getLink(links, relationshipType);
         if (aLink && aLink.href) {
             return HttpUtil.httpRequest(verb, aLink, content, contentType, options);
@@ -99,7 +99,7 @@ class HttpUtil {
         content: TRequest,
         contentType?: MediaType,
         defaultValue?: TResponse,
-        options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
+        options?: AxiosRequestConfig<TRequest>): Promise<AxiosResponse<TResponse>> {
         const aLink = LinkUtil.getLink(links, relationshipType);
         if (aLink && aLink.href) {
             return HttpUtil.httpRequest<TRequest, TResponse>(verb, aLink, content, contentType, options);
@@ -115,9 +115,13 @@ class HttpUtil {
     /**
      * GET http request
      */
-    public static get<TRequest, TResponse>(links: LinkType, relationshipType: RelationshipType, options?: AxiosRequestConfig):
+    public static get<TRequest, TResponse>(
+            links: LinkType,
+            relationshipType: RelationshipType,
+            options?: AxiosRequestConfig<TRequest>):
         Promise<AxiosResponse<TResponse>> {
-        return HttpUtil.link<TRequest, TResponse>(links, relationshipType, 'GET', undefined, undefined, options);
+        return HttpUtil.link<TRequest, TResponse>(
+                links, relationshipType, 'GET', undefined, undefined, options);
     }
 
     /**
@@ -127,7 +131,7 @@ class HttpUtil {
         links: LinkType,
         relationshipType: RelationshipType,
         defaultValue?: TResponse,
-        options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
+        options?: AxiosRequestConfig<void>): Promise<AxiosResponse<TResponse>> {
         return HttpUtil.tryLink<any, TResponse>(
             links,
             relationshipType,
@@ -146,7 +150,7 @@ class HttpUtil {
         relationshipType: RelationshipType,
         content: TRequest,
         contentType?: MediaType,
-        options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
+        options?: AxiosRequestConfig<TRequest>): Promise<AxiosResponse<void>> {
         return HttpUtil.link(links, relationshipType, 'PUT', content, contentType, options);
     }
 
@@ -158,7 +162,7 @@ class HttpUtil {
         relationshipType: RelationshipType,
         content?: TRequest,
         contentType?: MediaType,
-        options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
+        options?: AxiosRequestConfig<TRequest>): Promise<AxiosResponse<TResponse>> {
         return HttpUtil.link(links, relationshipType, 'POST', content, contentType, options);
     }
 
@@ -170,7 +174,7 @@ class HttpUtil {
         relationshipType: RelationshipType,
         content?: TRequest,
         contentType?: MediaType,
-        options?: AxiosRequestConfig): Promise<AxiosResponse<TResponse>> {
+        options?: AxiosRequestConfig<TRequest>): Promise<AxiosResponse<TResponse>> {
         return HttpUtil.link(links, relationshipType, 'PATCH', content, contentType, options);
     }
 

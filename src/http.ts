@@ -116,12 +116,12 @@ class HttpUtil {
      * GET http request
      */
     public static get<TRequest, TResponse>(
-            links: LinkType,
-            relationshipType: RelationshipType,
-            options?: AxiosRequestConfig<TRequest>):
+        links: LinkType,
+        relationshipType: RelationshipType,
+        options?: AxiosRequestConfig<TRequest>):
         Promise<AxiosResponse<TResponse>> {
         return HttpUtil.link<TRequest, TResponse>(
-                links, relationshipType, 'GET', undefined, undefined, options);
+            links, relationshipType, 'GET', undefined, undefined, options);
     }
 
     /**

@@ -33,10 +33,13 @@ describe('Link Representation ', () => {
         };
 
         [singleLink, multipleLinks].forEach(links => {
-            each(testRelsOnly).test('%s: (%s, %s)', (desc: any, rel: any, expected: any) => {
+            each(testRelsOnly)
+                .test(
+                    '%s: (%s, %s)',
+                    (desc: any, rel: any, expected: any) => {
                         expect(matches(links, rel)).toBe(expected);
-                    },
-            );
+                    }
+                );
         });
     });
 
@@ -66,15 +69,21 @@ describe('Link Representation ', () => {
             ['specific mediaType does not include non-specified', 'edit-form', 'text/uri-list', 1],
         ];
 
-        each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) => {
+        each(rels)
+            .test(
+                'filter - %s: (%s, %s)',
+                (desc: any, rel: any, mediaType: any, expected: any) => {
                     expect(filter(links, rel, mediaType).length).toBe(expected);
-                },
-        );
+                }
+            );
 
-        each(rels).test('matches %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) => {
+        each(rels)
+            .test(
+                'matches %s: (%s, %s)',
+                (desc: any, rel: any, mediaType: any, expected: any) => {
                     expect(matches(links, rel, mediaType)).toBe(expected > 0);
-                },
-        );
+                }
+            );
     });
 
     describe('get uri and title', () => {
@@ -136,10 +145,13 @@ describe('getUri', () => {
         ['empty title', ['invalid', { rel: 'tags', title: '' }], 'http://example.com/tag/3'],
     ];
 
-    each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: RelationshipType, expected: string) => {
+    each(rels)
+        .test(
+            'filter - %s: (%s, %s)',
+            (desc: any, rel: RelationshipType, expected: string) => {
                 expect(getUri(links, rel)).toBe(expected);
-            },
-    );
+            }
+        );
 });
 
 describe('Errors and logging', () => {
@@ -170,8 +182,11 @@ describe('type guard - instanceOfLinkedRepresentation ', () => {
         ['valid', { links: [] }, true],
     ];
 
-    each(rels).test('instanceOf - %s: (%s, %s)', (desc: any, anObject: any, expected: boolean) => {
+    each(rels)
+        .test(
+            'instanceOf - %s: (%s, %s)',
+            (desc: any, anObject: any, expected: boolean) => {
                 expect(instanceOfLinkedRepresentation(anObject)).toBe(expected);
-            },
-    );
+            }
+        );
 });

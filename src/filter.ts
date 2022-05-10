@@ -437,9 +437,9 @@ class LinkUtil {
 
     private static matchTitle(linkString: string, matchString: string | RegExp): boolean {
         return (
-                (linkString && matchString instanceof RegExp && !!linkString.match(matchString)) ||
-                matchString === '*' ||
-                linkString === matchString );
+            (linkString && matchString instanceof RegExp && !!linkString.match(matchString)) ||
+            matchString === '*' ||
+            linkString === matchString);
     }
 
 

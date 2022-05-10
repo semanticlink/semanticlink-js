@@ -1,6 +1,6 @@
 {
   "name": "semantic-link",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A utility library for manipulating a list of links that form a semantic interface to a resource.",
   "main": "lib/es5/index.js",
   "module": "lib/index.js",

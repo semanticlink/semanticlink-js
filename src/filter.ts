@@ -49,7 +49,7 @@ export type MediaType = string | undefined;
  * @see https://www.iana.org/assignments/link-relations/link-relations.xhtml
  * @see https://en.wikipedia.org/wiki/Link_relation
  */
-export type RelationshipType = string | RegExp | string[] | RegExp[] | LinkSelector | LinkSelector[];
+export type RelationshipType = string | string[] | LinkSelector | LinkSelector[];
 
 /**
  * This is a search criteria to allow the selection/filtering of link representations.
@@ -58,12 +58,12 @@ export interface LinkSelector {
     /**
      * A mandatory link relation name or regular expression.
      */
-    rel: string | RegExp;
+    rel: string;
 
     /**
      * An optional expression (string or regular expression) to match link media type.
      */
-    mediaType?: string | RegExp;
+    mediaType?: string;
 
     /**
      * An optional title to match the title
@@ -260,7 +260,7 @@ class LinkUtil {
             if (LinkUtil.matchParameter(link.rel, selector.rel)) {
 
                 const titleIsAMatchOrNotRequired = isNullOrUndefined(selector.title) ||
-                    (LinkUtil.matchParameter(link.title || '', selector.title));
+                    (LinkUtil.matchTitle(link.title || '', selector.title));
                 const mediaTypeIsAMatchOrNotRequired = isNullOrUndefined(selector.mediaType) ||
                     (LinkUtil.matchParameter(link.type || '', selector.mediaType));
                 if (titleIsAMatchOrNotRequired && mediaTypeIsAMatchOrNotRequired) {
@@ -424,9 +424,8 @@ class LinkUtil {
      *   - the string is a special case wildcard string of '*'
      *   - the string matches the link string
      */
-    private static matchParameter(linkString: string, matchString: string | RegExp): boolean {
+    private static matchParameter(linkString: string, matchString: string): boolean {
         return (
-            (linkString && matchString instanceof RegExp && !!linkString.match(matchString)) ||
             matchString === '*' ||
             matchString === '*/*' ||
             linkString === '*/*' ||
@@ -436,13 +435,20 @@ class LinkUtil {
         );
     }
 
+    private static matchTitle(linkString: string, matchString: string | RegExp): boolean {
+        return (
+                (linkString && matchString instanceof RegExp && !!linkString.match(matchString)) ||
+                matchString === '*' ||
+                linkString === matchString );
+    }
+
 
     /**
      * Normalise all the different options for making a selection into a standardised
      * array of {@link LinkSelector}.
      *
-     * Individual items are converted to singleton array. When the singleton is an string or
-     * RegExp the legacy style separate mediaType is added to the selector. If a newer style
+     * Individual items are converted to singleton array. When the singleton is a string
+     * the legacy style separate mediaType is added to the selector. If a newer style
      * selector is provided then the mediaType is ignored (and should be undefined/null).
      *
      * For arrays, heterogeneous array are converted to a homogeneous array of LinkSelector
@@ -455,28 +461,21 @@ class LinkUtil {
         if (typeof rels === 'string') {
             return [{ rel: rels, mediaType } as LinkSelector];
         }
-        if (rels instanceof RegExp) {
-            return [{ rel: rels, mediaType } as LinkSelector];
-        }
         // Convert a single LinkSelector to an array
         if (instanceOfLinkSelector(rels)) {
             return [rels as LinkSelector];
         }
 
-        // Normalise arrays of strings/RegExp/LinkSelector
+        // Normalise arrays of strings/LinkSelector
         if (Array.isArray(rels)) {
             // Check for a homogeneous array of LinkSelector
             if (rels.every((rel: any) => instanceOfLinkSelector(rel))) {
                 return rels as LinkSelector[];
             }
-            return (rels as (RegExp | string | LinkSelector)[])
-                .map<LinkSelector>((item: RegExp | string | LinkSelector) => {
+            return (rels as (string | LinkSelector)[])
+                .map<LinkSelector>((item: string | LinkSelector) => {
                     if (typeof item === 'string') {
                         return { rel: item as string, mediaType } as LinkSelector;
-                    }
-
-                    if (item instanceof RegExp) {
-                        return { rel: item, mediaType } as LinkSelector;
                     }
 
                     if (instanceOfLinkSelector(item)) {

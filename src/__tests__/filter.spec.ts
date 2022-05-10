@@ -1,34 +1,18 @@
 import each from 'jest-each';
-import ulog from 'ulog';
-import {
-    filter,
-    getTitle,
-    getUri,
-    instanceOfLinkedRepresentation,
-    matches,
-    RelationshipType,
-} from '../filter';
+import { filter, getTitle, getUri, instanceOfLinkedRepresentation, matches, RelationshipType } from '../filter';
 import { Link, LinkedRepresentation } from '../interfaces';
 
-ulog.level = ulog.DEBUG;
+// ulog.level = ulog.DEBUG;
 
 describe('Link Representation ', () => {
     const testRelsOnly = [
         ['single string', 'self', true],
-        ['single regex', /self/, true],
-        ['regex begin/end', /^self$/, true],
-        ['regex global', /^self$/g, true],
-        ['regex case insensitive', /^Self$/i, true],
         ['array string first', ['self', 'first'], true],
         ['array string double', ['self', 'self'], true],
         ['array string last', ['first', 'self'], true],
         ['array string set middle', ['first', 'self', 'last'], true],
         ['array string set last', ['first', 'last', 'self'], true],
-        ['array string/regex', ['first', 'last', /self/], true],
-        ['array string/regex', ['/last/', 'last', /self/], true],
         ['not found single string', 'canonical', false],
-        ['not found single regex', /canonical/, false],
-        ['not found regex specific', /^canonical/, false],
         ['not found array string', ['canonical', 'last'], false],
     ];
 
@@ -50,8 +34,8 @@ describe('Link Representation ', () => {
 
         [singleLink, multipleLinks].forEach(links => {
             each(testRelsOnly).test('%s: (%s, %s)', (desc: any, rel: any, expected: any) => {
-                expect(matches(links, rel)).toBe(expected);
-            }
+                        expect(matches(links, rel)).toBe(expected);
+                    },
             );
         });
     });
@@ -83,13 +67,13 @@ describe('Link Representation ', () => {
         ];
 
         each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) => {
-            expect(filter(links, rel, mediaType).length).toBe(expected);
-        }
+                    expect(filter(links, rel, mediaType).length).toBe(expected);
+                },
         );
 
         each(rels).test('matches %s: (%s, %s)', (desc: any, rel: any, mediaType: any, expected: any) => {
-            expect(matches(links, rel, mediaType)).toBe(expected > 0);
-        }
+                    expect(matches(links, rel, mediaType)).toBe(expected > 0);
+                },
         );
     });
 
@@ -153,8 +137,8 @@ describe('getUri', () => {
     ];
 
     each(rels).test('filter - %s: (%s, %s)', (desc: any, rel: RelationshipType, expected: string) => {
-        expect(getUri(links, rel)).toBe(expected);
-    }
+                expect(getUri(links, rel)).toBe(expected);
+            },
     );
 });
 
@@ -179,7 +163,7 @@ describe('type guard - instanceOfLinkedRepresentation ', () => {
         ['number', 5, false],
         ['regex', /aa/, false],
         ['empty', {}, false],
-        ['other structure', {bob: ''}, false],
+        ['other structure', { bob: '' }, false],
         ['invalid links - number', { links: 5 }, false],
         ['invalid links - string', { links: '' }, false],
         ['invalid links - object', { links: {} }, false],
@@ -187,7 +171,7 @@ describe('type guard - instanceOfLinkedRepresentation ', () => {
     ];
 
     each(rels).test('instanceOf - %s: (%s, %s)', (desc: any, anObject: any, expected: boolean) => {
-        expect(instanceOfLinkedRepresentation(anObject)).toBe(expected);
-    }
+                expect(instanceOfLinkedRepresentation(anObject)).toBe(expected);
+            },
     );
 });

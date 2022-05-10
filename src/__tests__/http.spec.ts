@@ -1,8 +1,8 @@
-import ulog from 'ulog';
+// import ulog from 'ulog';
 import HttpUtil from '../http';
 import { LinkedRepresentation } from '../interfaces';
 
-ulog.level = ulog.DEBUG;
+// ulog.level = ulog.DEBUG;
 
 /*
 const cancelToken: CancelToken = {
@@ -14,7 +14,7 @@ const cancelToken: CancelToken = {
 */
 
 describe('Get', () => {
-    describe('should match on /self/ returning a resolved promise', () => {
+    describe('should match on self returning a resolved promise', () => {
         const resource: LinkedRepresentation = {
             links: [{ rel: 'self', href: 'https://api.example.com/' }],
         };
@@ -36,7 +36,7 @@ describe('Get', () => {
 
         it('promise syntax with resovles', async () => {
             expect.assertions(1);
-            await expect(HttpUtil.get(resource, /self/)).resolves.toEqual(calledWith);
+            await expect(HttpUtil.get(resource, 'self')).resolves.toEqual(calledWith);
         });
 
         /**
@@ -45,12 +45,12 @@ describe('Get', () => {
         describe('promise not async', () => {
             it('promise syntax with resolves', () => {
                 expect.assertions(1);
-                return expect(HttpUtil.get(resource, /self/)).resolves.toEqual(calledWith);
+                return expect(HttpUtil.get(resource, 'self')).resolves.toEqual(calledWith);
             });
 
             it('promise syntax', () => {
                 expect.assertions(1);
-                return HttpUtil.get(resource, /self/).then(result => {
+                return HttpUtil.get(resource, 'self').then(result => {
                     expect(result).toEqual(calledWith);
                 });
             });
@@ -63,25 +63,25 @@ describe('Get', () => {
 
             it('inline', async () => {
                 expect.assertions(1);
-                const result = await HttpUtil.get(resource, /self/);
+                const result = await HttpUtil.get(resource, 'self');
                 expect(result).toEqual(calledWith);
             });
 
             it('with resolves', async () => {
                 expect.assertions(1);
-                await expect(HttpUtil.get(resource, /self/)).resolves.toEqual(calledWith);
+                await expect(HttpUtil.get(resource, 'self')).resolves.toEqual(calledWith);
             });
 
             it('with promise chain', async () => {
                 expect.assertions(1);
-                await HttpUtil.get(resource, /self/).then(res => {
+                await HttpUtil.get(resource, 'self').then(res => {
                     expect(res).toEqual(calledWith);
                 });
             });
 
             it('with promise chain catch', async () => {
                 expect.assertions(1);
-                await HttpUtil.get(resource, /self/)
+                await HttpUtil.get(resource, 'self')
                     .then(() => {
                         throw new Error('dead');
                     })
@@ -92,14 +92,14 @@ describe('Get', () => {
 
             it('with promise chain catch resolves to Error (do not use this style)', async () => {
                 expect.assertions(1);
-                await expect(HttpUtil.get(resource, /self/).then(() => Promise.reject(new Error('dead')))).rejects.toEqual(
+                await expect(HttpUtil.get(resource, 'self').then(() => Promise.reject(new Error('dead')))).rejects.toEqual(
                     new Error('dead')
                 );
             });
 
             it('with promise chain catch correctly has an Error returned on catch to read message', async () => {
                 expect.assertions(1);
-                await HttpUtil.get(resource, /self/)
+                await HttpUtil.get(resource, 'self')
                     .then(() => Promise.reject(new Error('dead')))
                     .catch(err => {
                         expect(err.message).toEqual('dead');
@@ -122,11 +122,11 @@ describe('Get', () => {
             };
 
             it('match no optional', async () => {
-                expect(await HttpUtil.tryGet(resource, /self/)).toEqual(response);
+                expect(await HttpUtil.tryGet(resource, 'self')).toEqual(response);
             });
 
             it('match with no media type or cancel token', async () => {
-                expect(await HttpUtil.tryGet(resource, /self/, { links: [] } as LinkedRepresentation)).toEqual(response);
+                expect(await HttpUtil.tryGet(resource, 'self', { links: [] } as LinkedRepresentation)).toEqual(response);
             });
         });
 
@@ -138,13 +138,13 @@ describe('Get', () => {
             };
 
             it('no cancel token', async () => {
-                const actual = await HttpUtil.tryGet(resource, /self/, { links: [] } as LinkedRepresentation);
+                const actual = await HttpUtil.tryGet(resource, 'self', { links: [] } as LinkedRepresentation);
                 expect(actual).toEqual(calledWith);
             });
 
             it('all', async () => {
                 expect(
-                    await HttpUtil.tryGet(resource, /self/, { links: [] } as LinkedRepresentation)
+                    await HttpUtil.tryGet(resource, 'self', { links: [] } as LinkedRepresentation)
                 ).toEqual(calledWith);
             });
         });
@@ -157,11 +157,11 @@ describe('Get', () => {
             };
 
             it('no media or default value', async () => {
-                expect(await HttpUtil.tryGet(resource, /self/)).toEqual(calledWith);
+                expect(await HttpUtil.tryGet(resource, 'self')).toEqual(calledWith);
             });
 
             it('no media with cancel and default', async () => {
-                expect(await HttpUtil.tryGet(resource, /self/, { links: [] } as LinkedRepresentation))
+                expect(await HttpUtil.tryGet(resource, 'self', { links: [] } as LinkedRepresentation))
                     .toEqual(calledWith);
             });
         });
@@ -169,7 +169,7 @@ describe('Get', () => {
 });
 
 describe('Post', () => {
-    it('should match on /self/ returning a resolved promise', async () => {
+    it('should match on self returning a resolved promise', async () => {
         const resource = {
             links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
         };
@@ -181,7 +181,7 @@ describe('Post', () => {
             url: 'https://api.example.com/collection',
         };
 
-        await expect(HttpUtil.post(resource, /submit/, { a: 'b' })).resolves.toEqual(response);
+        await expect(HttpUtil.post(resource, 'submit', { a: 'b' })).resolves.toEqual(response);
     });
 });
 
@@ -199,12 +199,12 @@ describe('Delete', () => {
         url: 'https://api.example.com/collection',
     };
 
-    it('should match on /self/ returning a resolved promise', async () => {
+    it('should match on self returning a resolved promise', async () => {
         const resource = {
             links: [{ rel: 'submit', href: 'https://api.example.com/collection' }],
         };
 
-        await expect(HttpUtil.del(resource, /submit/)).resolves.toEqual(calledWith);
+        await expect(HttpUtil.del(resource, 'submit')).resolves.toEqual(calledWith);
     });
 });
 
